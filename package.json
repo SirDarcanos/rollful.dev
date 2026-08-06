@@ -19,8 +19,8 @@
     "test": "npm run test --workspaces --if-present",
     "dev": "npm run dev --workspace @rollful/api",
     "deploy": "npm run deploy --workspace @rollful/api",
-    "format": "prettier --write \"**/*.{ts,json,jsonc,md}\" --ignore-path .gitignore",
-    "format:check": "prettier --check \"**/*.{ts,json,jsonc,md}\" --ignore-path .gitignore"
+    "format": "prettier --write \"**/*.{ts,json,jsonc,md}\" --ignore-path .gitignore --ignore-path .prettierignore",
+    "format:check": "prettier --check \"**/*.{ts,json,jsonc,md}\" --ignore-path .gitignore --ignore-path .prettierignore"
   },
   "devDependencies": {
     "prettier": "^3.6.2",

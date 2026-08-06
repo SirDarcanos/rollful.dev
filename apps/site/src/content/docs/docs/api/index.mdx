@@ -1,0 +1,229 @@
+---
+title: Making a call
+description: Roll dice over HTTP with the Rollful API, in curl, JavaScript, Python, PHP, Go or Ruby.
+sidebar:
+  order: 0
+---
+
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components'
+
+Rollful is a dice-rolling API over plain JSON and HTTP. There is no key, no signup and no
+account, so a call is a request and nothing else — every language can make one.
+
+The base URL is `https://api.rollful.dev`, and the rolling itself is
+[OpenDice](https://www.npmjs.com/package/opendice). In JavaScript you can skip the network
+and [use the package directly](/docs/).
+
+## Your first roll
+
+Send a formula, get back every die it rolled.
+
+<Tabs syncKey="language">
+  <TabItem label="curl">
+
+```bash
+curl 'https://api.rollful.dev/v1/roll?formula=4d6kh3'
+```
+
+  </TabItem>
+  <TabItem label="JavaScript">
+
+```js
+const response = await fetch('https://api.rollful.dev/v1/roll?formula=4d6kh3')
+const result = await response.json()
+
+console.log(result.total) // 14
+```
+
+  </TabItem>
+  <TabItem label="Python">
+
+```python
+import requests
+
+result = requests.get(
+    'https://api.rollful.dev/v1/roll',
+    params={'formula': '4d6kh3'},
+).json()
+
+print(result['total'])  # 14
+```
+
+  </TabItem>
+  <TabItem label="PHP">
+
+```php
+$query = http_build_query(['formula' => '4d6kh3']);
+$result = json_decode(
+    file_get_contents("https://api.rollful.dev/v1/roll?$query"),
+    true,
+);
+
+echo $result['total']; // 14
+```
+
+  </TabItem>
+  <TabItem label="Go">
+
+```go
+url := "https://api.rollful.dev/v1/roll?formula=" + url.QueryEscape("4d6kh3")
+
+response, err := http.Get(url)
+if err != nil {
+	return err
+}
+defer response.Body.Close()
+
+var result struct {
+	Total int `json:"total"`
+}
+if err := json.NewDecoder(response.Body).Decode(&result); err != nil {
+	return err
+}
+
+fmt.Println(result.Total) // 14
+```
+
+  </TabItem>
+  <TabItem label="Ruby">
+
+```ruby
+require 'json'
+require 'net/http'
+
+uri = URI('https://api.rollful.dev/v1/roll')
+uri.query = URI.encode_www_form(formula: '4d6kh3')
+result = JSON.parse(Net::HTTP.get(uri))
+
+puts result['total'] # 14
+```
+
+  </TabItem>
+</Tabs>
+
+Every call answers with the same shape:
+
+```json
+{
+  "formula": "4d6kh3",
+  "dice": [
+    {
+      "sides": 6,
+      "results": [5, 4, 5, 3],
+      "kept": [5, 5, 4],
+      "keptFlags": [true, true, true, false],
+      "total": 14
+    }
+  ],
+  "total": 14
+}
+```
+
+`results` holds every die, including the one that was dropped, and `keptFlags` lines up with
+it so an interface can dim that die rather than hide it. [Reading a result](/docs/api/results/)
+walks through each field.
+
+<Aside type="caution" title="Encode the formula">
+  `+` means a space in a query string, so `2d6+3` has to be sent as `2d6%2B3` or it arrives
+  as `2d6 3` and fails to parse. Every client above escapes it for you except `curl`, where
+  you write it yourself. Or send the formula in a `POST` body, where it is just JSON.
+</Aside>
+
+## Bonuses, tags and advantage
+
+`GET` takes a formula and little else. For anything more, `POST` the same roll as JSON.
+
+<Tabs syncKey="language">
+  <TabItem label="curl">
+
+```bash
+curl -X POST https://api.rollful.dev/v1/roll \
+  -H 'content-type: application/json' \
+  -d '{"formula":"1d20+7","advantage":"advantage"}'
+```
+
+  </TabItem>
+  <TabItem label="JavaScript">
+
+```js
+const response = await fetch('https://api.rollful.dev/v1/roll', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ formula: '1d20+7', advantage: 'advantage' }),
+})
+const result = await response.json()
+```
+
+  </TabItem>
+  <TabItem label="Python">
+
+```python
+result = requests.post(
+    'https://api.rollful.dev/v1/roll',
+    json={'formula': '1d20+7', 'advantage': 'advantage'},
+).json()
+```
+
+  </TabItem>
+  <TabItem label="PHP">
+
+```php
+$result = json_decode(file_get_contents(
+    'https://api.rollful.dev/v1/roll',
+    false,
+    stream_context_create(['http' => [
+        'method' => 'POST',
+        'header' => 'content-type: application/json',
+        'content' => json_encode(['formula' => '1d20+7', 'advantage' => 'advantage']),
+    ]]),
+), true);
+```
+
+  </TabItem>
+  <TabItem label="Go">
+
+```go
+body, err := json.Marshal(map[string]string{
+	"formula":   "1d20+7",
+	"advantage": "advantage",
+})
+if err != nil {
+	return err
+}
+
+response, err := http.Post(
+	"https://api.rollful.dev/v1/roll",
+	"application/json",
+	bytes.NewReader(body),
+)
+```
+
+  </TabItem>
+  <TabItem label="Ruby">
+
+```ruby
+result = JSON.parse(Net::HTTP.post(
+  URI('https://api.rollful.dev/v1/roll'),
+  { formula: '1d20+7', advantage: 'advantage' }.to_json,
+  'content-type' => 'application/json',
+).body)
+```
+
+  </TabItem>
+</Tabs>
+
+A body may also carry `bonuses`, which add dice or numbers to the roll, and `tags`, which
+name the words a formula is allowed to end with. Both are described on
+[the endpoint itself](/docs/api/endpoints/operations/v1roll/post/).
+
+## Several rolls at once
+
+`POST /v1/roll/batch` takes up to 20 rolls and answers with the same number of results, in
+order. One request rather than twenty is the difference between one round trip and twenty,
+and the whole batch is counted against a single dice budget.
+
+```bash
+curl -X POST https://api.rollful.dev/v1/roll/batch \
+  -H 'content-type: application/json' \
+  -d '{"rolls":[{"formula":"4d6kh3"},{"formula":"4d6kh3"},{"formula":"4d6kh3"}]}'
+```

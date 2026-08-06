@@ -55,13 +55,23 @@ describe('the grammar round-trips through the API', () => {
 
   it('reads advantage from the formula', async () => {
     const body = await (
-      await get('/v1/roll?formula=1d20adv')
+      await get('/v1/roll?formula=2d20adv')
     ).json<{
       advantageState: string
       dice: { results: number[]; kept: number[] }[]
     }>()
     expect(body.advantageState).toBe('advantage')
     expect(body.dice[0]?.results).toHaveLength(2)
+    expect(body.dice[0]?.kept).toHaveLength(1)
+  })
+
+  it('throws every die an advantage formula asks for', async () => {
+    const body = await (
+      await get('/v1/roll?formula=4d20adv')
+    ).json<{
+      dice: { results: number[]; kept: number[] }[]
+    }>()
+    expect(body.dice[0]?.results).toHaveLength(4)
     expect(body.dice[0]?.kept).toHaveLength(1)
   })
 
@@ -178,6 +188,15 @@ describe('the guards the API adds', () => {
 
   it('rejects a batch whose dice exceed the budget across rolls', async () => {
     const rolls = Array.from({ length: 20 }, () => ({ formula: '100d6' }))
+    const response = await post('/v1/roll/batch', { rolls })
+    expect(response.status).toBe(400)
+    expect((await response.json<{ error: { code: string } }>()).error.code).toBe('too_many_dice')
+  })
+
+  // The count is read from the parsed term rather than the rolled result, so this pins the
+  // two together: an advantage formula throws what it asks for, and is charged for it.
+  it('charges an advantage formula for every die it throws', async () => {
+    const rolls = Array.from({ length: 6 }, () => ({ formula: '200d20adv' }))
     const response = await post('/v1/roll/batch', { rolls })
     expect(response.status).toBe(400)
     expect((await response.json<{ error: { code: string } }>()).error.code).toBe('too_many_dice')

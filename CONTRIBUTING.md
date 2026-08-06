@@ -35,19 +35,20 @@ curl 'http://localhost:8787/openapi.json'
 npm run dev --workspace @rollful/site
 ```
 
-Astro serves on `http://localhost:4321`, and the reference is at `/reference`.
+Astro serves on `http://localhost:4321`. The documentation is split by surface: `/docs`
+covers the OpenDice package, `/docs/api` covers the REST API, and the generated endpoint
+reference sits under `/docs/api/endpoints`.
 
-By default it reads the production API, which means the reference documents whatever is
-deployed rather than what you are working on. To point it at a local Worker, copy
-`apps/site/.env.example` to `apps/site/.env` and run both:
+The reference builds from the committed document, so it always describes this checkout. The
+home page roller calls the real API, and by default that is production. To point it at a
+local Worker, copy `apps/site/.env.example` to `apps/site/.env` and run both:
 
 ```bash
 npm run dev --workspace @rollful/api
 npm run dev --workspace @rollful/site
 ```
 
-`.env` is not committed. The variable sets both the document the reference loads and the
-server its "try it" requests go to.
+`.env` is not committed.
 
 ## Checks
 

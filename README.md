@@ -66,7 +66,7 @@ curl -X POST https://api.rollful.dev/v1/roll \
 | -------------------- | ------------------------------------------------------------------ |
 | `2d6`                | roll two six-sided dice                                            |
 | `1d20+7`, `10-1d4`   | flat modifiers                                                     |
-| `1d20adv`, `1d20dis` | advantage and disadvantage                                         |
+| `2d20adv`, `2d20dis` | advantage and disadvantage, over as many dice as the count asks    |
 | `4d6kh3`, `4d6kl3`   | keep the highest or lowest three                                   |
 | `1d6!`               | exploding: a top face rolls again and adds                         |
 | `1d6!p`              | penetrating: like `!`, but each roll after the first counts 1 less |

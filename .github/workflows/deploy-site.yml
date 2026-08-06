@@ -44,7 +44,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-      # -L because /reference redirects to /reference/, which is how Astro builds it.
+      # -L because /docs/api redirects to /docs/api/, which is how Astro builds it.
       #
       # Waits before the first attempt, because a new version takes a moment to reach the
       # edge, and prints what came back so a failure says why rather than only that it
@@ -62,7 +62,7 @@ jobs:
           for attempt in $(seq 1 10); do
             sleep 6
             page="$(curl -sSL --max-time 10 -H "X-Rollful-Deploy-Check: $DEPLOY_CHECK_TOKEN" \
-              'https://rollful.dev/reference/' 2>&1 || true)"
+              'https://rollful.dev/docs/api/' 2>&1 || true)"
             if printf '%s' "$page" | grep -q 'api.rollful.dev'; then
               echo "Reference page served on attempt $attempt, describing the production API"
               exit 0
@@ -78,5 +78,5 @@ jobs:
             exit 0
           fi
 
-          echo "::error::The deployed site did not serve /reference/ describing the production API"
+          echo "::error::The deployed site did not serve /docs/api/ describing the production API"
           exit 1

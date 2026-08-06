@@ -31,3 +31,5 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - A schema per error status, each listing only the codes that status can carry and quoting
   the message the API really returns. The messages live in `@rollful/schema` so the Worker
   and the document cannot disagree, and a test pins the two together.
+- Deployment for the site, as a Worker with an assets binding serving `rollful.dev`, with a
+  workflow that runs when the site or the schemas it reads change.

@@ -111,6 +111,7 @@ Codes: `invalid_request`, `invalid_formula`, `payload_too_large`, `too_many_dice
 | Path              | Contents                                        |
 | ----------------- | ----------------------------------------------- |
 | `apps/api`        | the Cloudflare Worker serving `api.rollful.dev` |
+| `apps/site`       | the Astro site serving `rollful.dev`            |
 | `packages/schema` | Zod schemas shared by the API and the site      |
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) to run it locally, and [AGENTS.md](AGENTS.md) for how

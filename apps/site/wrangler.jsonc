@@ -1,0 +1,15 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "rollful-site",
+  "compatibility_date": "2026-08-01",
+  // No "main": the site is static, so the Worker serves assets and runs no code of its own.
+  "assets": {
+    "directory": "./dist",
+  },
+  "routes": [
+    {
+      "pattern": "rollful.dev",
+      "custom_domain": true,
+    },
+  ],
+}

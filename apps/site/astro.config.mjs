@@ -9,6 +9,7 @@ import { defineConfig } from 'astro/config'
 import starlightOpenAPI, { openAPISidebarGroups } from 'starlight-openapi'
 import { FATHOM_SNIPPET } from './src/lib/fathom.ts'
 import { EXPRESSIVE_CODE_THEMES } from './src/shiki-theme.ts'
+import { hideEndpointsOverview } from './src/starlight/endpoints-overview.ts'
 
 export default defineConfig({
   site: 'https://rollful.dev',
@@ -32,11 +33,22 @@ export default defineConfig({
       editLink: {
         baseUrl: 'https://github.com/SirDarcanos/rollful.dev/edit/main/apps/site/',
       },
+      // One group per surface, because which one you want is the first decision a reader
+      // makes: /docs/ documents the npm package, /docs/api/ the REST API. The generated
+      // endpoints are nested inside the REST API group rather than sitting beside it, so
+      // the sidebar matches the routes.
       sidebar: [
-        { label: 'Getting started', link: '/docs/' },
-        { label: 'The formula grammar', link: '/docs/grammar/' },
-        { label: 'Using the API', items: [{ autogenerate: { directory: 'docs/api' } }] },
-        ...openAPISidebarGroups,
+        {
+          label: 'The OpenDice package',
+          items: [
+            { label: 'Getting started', link: '/docs/' },
+            { label: 'The formula grammar', link: '/docs/grammar/' },
+          ],
+        },
+        {
+          label: 'The REST API',
+          items: [{ autogenerate: { directory: 'docs/api' } }, ...openAPISidebarGroups],
+        },
       ],
       plugins: [
         // The reference is generated into Starlight rather than mounted as a separate app,
@@ -44,11 +56,33 @@ export default defineConfig({
         // theme instead of being two sites that happen to match.
         starlightOpenAPI([
           {
-            base: 'reference',
-            label: 'API reference',
+            // Under /docs/api rather than at it: the REST API's own first page is written by
+            // hand, and this generates the endpoint-by-endpoint reference below it.
+            base: 'docs/api/endpoints',
+            label: 'Endpoints',
             schema: './src/openapi.json',
+            // The document's own introduction promises a snippet in the language you use,
+            // and the default is only fetch and curl. These are every client the plugin can
+            // generate; the API needs nothing from a client beyond a request, so each one
+            // works as printed.
+            snippets: {
+              operation: {
+                clients: {
+                  shell: ['curl', 'wget'],
+                  javascript: ['fetch', 'axios'],
+                  go: ['nethttp'],
+                  java: ['nethttp', 'okhttp'],
+                  csharp: ['httpclient'],
+                  kotlin: ['okhttp'],
+                  rust: ['reqwest'],
+                  c: ['libcurl'],
+                },
+              },
+            },
           },
         ]),
+        // After starlightOpenAPI, which is what lets it see the generated group.
+        hideEndpointsOverview(),
       ],
       components: {
         // The docs sit inside a wider site, so the header carries the site's own links back

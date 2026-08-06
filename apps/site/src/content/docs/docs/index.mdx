@@ -1,0 +1,90 @@
+---
+title: Getting started
+description: Roll dice in JavaScript or TypeScript with OpenDice, the npm package Rollful is built on.
+sidebar:
+  order: 1
+---
+
+import { Steps } from '@astrojs/starlight/components'
+
+[OpenDice](https://www.npmjs.com/package/opendice) is the npm package that does the rolling:
+a formula parser and one `roll()` over a CSPRNG (Cryptographically Secure Pseudo-Random Number Generator). Rollful is the hosted API built on it, and
+these pages cover the package underneath.
+
+In JavaScript or TypeScript, this is usually what you want. It rolls locally, with no network
+call, no rate limit and no dependency on this service staying up. Reach for
+[the REST API](/docs/api/) when the roll should not happen on the client — a result several
+people must agree on, a server-authoritative roll, or a language that has no OpenDice build.
+
+## Install and roll
+
+<Steps>
+
+1. Install it.
+
+   ```bash
+   npm i opendice
+   ```
+
+2. Roll a formula.
+
+   ```js
+   import { roll } from 'opendice'
+
+   const result = roll('4d6kh3')
+
+   result.total // 14
+   ```
+
+</Steps>
+
+The package has no dependencies, ships its own types and source maps, and runs in browsers,
+Node 20 or newer, and edge runtimes alike.
+
+## What comes back
+
+`roll()` returns every die it rolled rather than just the answer, so an interface can show
+the working instead of a number.
+
+```js
+const result = roll('4d6kh3')
+
+result.formula // '4d6kh3' — what you asked for, as you wrote it
+result.total // 14
+result.modifier // 0
+result.dice[0].results // [5, 4, 5, 3] — every die, including the one that was dropped
+result.dice[0].kept // [5, 5, 4] — the ones that counted
+```
+
+`keptFlags()` lines up with `results` rather than `kept`, which is what you want when
+rendering: the dropped die keeps its place in the row instead of vanishing from it.
+
+```js
+import { keptFlags, roll } from 'opendice'
+
+const result = roll('4d6kh3')
+
+keptFlags(result.dice[0]) // [true, true, true, false]
+```
+
+## The rest of the package
+
+| Export                      | What it does                                           |
+| --------------------------- | ------------------------------------------------------ |
+| `roll(formula, options?)`   | Rolls a formula and returns the result                 |
+| `parseFormula(text, opts?)` | Reads a formula without rolling it, for checking input |
+| `rollDie(sides, source?)`   | Rolls one die and returns a number                     |
+| `cryptoRandom()`            | The raw random number the dice are built on            |
+| `keptFlags(group)`          | Which dice counted, aligned to the roll order          |
+| `soleDieGroup(result)`      | The dice in a result, if it used only one kind         |
+
+`options` carries the same three things the API takes in a body: `advantage`, `bonuses` and
+`tags`. The [package README](https://github.com/SirDarcanos/opendice#readme) documents each
+export in full.
+
+## Where to go next
+
+- [The formula grammar](/docs/grammar/) — everything a formula can say, in the package and
+  over HTTP alike.
+- [The REST API](/docs/api/) — the same rolls over HTTP, for everything that is not
+  JavaScript.

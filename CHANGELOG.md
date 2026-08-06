@@ -44,19 +44,48 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Fathom analytics on the site, loaded only when the page is served from a real host, with
   events for rolling, presets, copying a snippet and opening the reference.
 
-- Documentation at `rollful.dev/docs`, built with Starlight: getting started, the formula
-  grammar, reading a result, limits and errors. The limits page reads its numbers from
-  `@rollful/schema`, so it cannot drift from the guard.
+- Documentation at `rollful.dev/docs`, built with Starlight: getting started with the
+  package, the formula grammar, making a call, reading a result, limits and errors. Making a
+  call shows a first request in curl, JavaScript, Python, PHP, Go and Ruby. The limits page
+  reads its numbers from `@rollful/schema`, so it cannot drift from the guard.
 
 ### Changed
 
-- The API reference is generated into Starlight from the OpenAPI document rather than
+- OpenDice 1.3.0, where `adv` and `dis` keep the count they were written with: `4d20adv`
+  now throws four d20 and keeps the highest, rather than being cut back to two without a
+  word. A count of 1 is deprecated — `1d20adv` still rolls two dice, but `2d20adv` is the
+  formula it means, and a future version will refuse the shorter one. The documentation, the
+  home page presets and the tests all say `2d20adv` now. The `advantage` field is unchanged
+  and still takes a plain `1d20`.
+- The documentation is split by surface, since which one you want is the first decision a
+  reader makes. `/docs` covers the OpenDice package — installing it, what `roll()` returns,
+  and the formula grammar. `/docs/api` covers the REST API — making a call, the result
+  fields, the limits, the errors — with the generated endpoint reference under
+  `/docs/api/endpoints`. It is called the REST API rather than the API reference, which is
+  what it is: OpenDice is the other way in, and neither is "the reference".
+- The reference is generated into Starlight from the OpenAPI document rather than
   mounted as a separate Scalar application, so the documentation and the reference share
   one sidebar, one search and one theme. It is read-only in exchange: the reference offers
   copyable snippets in many languages where Scalar could send the request for you.
 - The OpenAPI document is written to a file by the Worker itself, and the reference builds
   from that. Pointing at the deployed document would have documented the previous version
   until the API caught up, since both deploy from the same commit.
+- The reference moved from `/reference` to `/docs/api`, beside the hand-written pages about
+  calling the API rather than on a route of its own. `/reference` was where Scalar had been
+  mounted as a separate application, and nothing needed it once the reference became part of
+  the documentation.
+- The document's introduction introduces the endpoints rather than repeating the
+  documentation. The quick start, the result fields and the limits were all restated there
+  while the reference stood alone; each has a page of its own now, and the introduction says
+  what the API is and where the rest lives.
+- Operation snippets in every language the generator supports — C, C#, Go, Java, JavaScript,
+  Kotlin, Rust and shell — rather than the default of `fetch` and `curl` alone.
+- No "Overview" links in the generated endpoint groups. The one at the top pointed at a page
+  the documentation already had, since "Making a call" opens the REST API, and the one in each
+  tag was that tag's description above a list of the endpoints beside it. What is left in the
+  sidebar is the endpoints. `starlight-openapi` adds those links with no way to turn them off,
+  so a small local Starlight plugin drops them and repairs the pagination that pointed at
+  them.
 
 ### Fixed
 

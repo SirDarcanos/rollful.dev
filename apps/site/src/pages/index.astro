@@ -26,7 +26,7 @@ const RESPONSE_SAMPLE = `{
 }`
 
 /** Enough of the grammar to show it exists. The rest belongs in the documentation. */
-const PRESETS = ['4d6kh3', '1d20adv', '2d6+3', '1d6!p', '1d8+1d4']
+const PRESETS = ['4d6kh3', '2d20adv', '2d6+3', '1d6!p', '1d8+1d4']
 
 const FEATURE_COPY = [
   {
@@ -80,11 +80,11 @@ const FEATURES = FEATURE_COPY.map((feature) => ({
          behind it without needing a z-index. -->
     <div
       aria-hidden="true"
-      class="pointer-events-none absolute -top-48 -right-24 h-[40rem] w-[40rem] rounded-full bg-teal/10 blur-3xl dark:bg-aqua/5"
+      class="pointer-events-none absolute -top-48 -right-24 h-160 w-160 rounded-full bg-teal/10 blur-3xl dark:bg-aqua/5"
     >
     </div>
     <Logo
-      class="pointer-events-none absolute -right-24 -bottom-32 h-[26rem] w-[26rem] text-teal/10 lg:-right-28 lg:-bottom-40 lg:h-[42rem] lg:w-[42rem] dark:text-aqua/10"
+      class="pointer-events-none absolute -right-24 -bottom-32 h-104 w-104 text-teal/10 lg:-right-28 lg:-bottom-40 lg:h-168 lg:w-2xl dark:text-aqua/10"
       strokeWidth={0.5}
     />
 
@@ -105,21 +105,19 @@ const FEATURES = FEATURE_COPY.map((feature) => ({
             Every die drawn from a <span class="underline underline-offset-3 decoration-dotted" title="Cryptographically Secure Pseudo-Random Number Generator">CSPRNG</span>, and a transparent report of how they were processed — not just the total. Available as an <code class="rounded bg-zinc-100 px-1 py-0.5 text-xs text-teal dark:bg-white/5 dark:text-aqua">npm</code> package, or via a hosted API for everything that is not JavaScript.
           </p>
 
-          <CodeBlock code="npm install opendice" lang="bash" class="mt-10 max-w-md" />
+          <CodeBlock code="npm i opendice" lang="bash" class="mt-10 max-w-md" />
 
           <div class="mt-6 flex flex-wrap gap-3">
             <a
-              href="/reference/"
-              data-event="Opened the API reference"
-              class="rounded-lg bg-teal px-6 py-3 text-sm font-medium text-white hover:bg-teal/90 dark:bg-aqua dark:text-ink dark:hover:bg-aqua/90"
-              >Open the API reference →</a
-            >
-            <a
               href="/docs/"
               data-event="Opened the docs"
+              class="rounded-lg border border-teal bg-teal px-6 py-3 text-sm font-medium text-white hover:bg-teal/90 dark:bg-aqua dark:text-ink dark:hover:bg-aqua/90"
+              >Getting Started →</a>
+            <a
+              href="/docs/api/"
+              data-event="Opened the REST API reference"
               class="rounded-lg border border-zinc-300 bg-white px-6 py-3 text-sm font-medium hover:bg-zinc-50 dark:border-white/15 dark:bg-transparent dark:hover:bg-ink-soft"
-              >Read the docs</a
-            >
+              >REST API →</a>
           </div>
         </div>
 
@@ -220,7 +218,7 @@ const FEATURES = FEATURE_COPY.map((feature) => ({
          to itself, so it stays a signature rather than a motif. -->
     <div
       aria-hidden="true"
-      class="pointer-events-none absolute -top-40 -left-32 h-[40rem] w-[40rem] rounded-full bg-teal/10 blur-3xl dark:bg-aqua/5"
+      class="pointer-events-none absolute -top-40 -left-32 h-160 w-160 rounded-full bg-teal/10 blur-3xl dark:bg-aqua/5"
     >
     </div>
 

@@ -1,0 +1,3 @@
+# Generated from the Worker by `npm run openapi --workspace @rollful/api`. Its shape is the
+# generator's to decide; formatting it here would mean the two must agree forever.
+apps/site/src/openapi.json

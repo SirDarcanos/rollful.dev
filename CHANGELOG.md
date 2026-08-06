@@ -41,6 +41,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The marketing page at `rollful.dev`: the install command, a roller against the live API
   that prints its working, and the case for the package over the API. The API reference
   carries the site header and the same palette.
+- A 404 page, answering for every address the site does not have, the documentation's
+  included: Starlight's own 404 route is off, so there is one rather than two. It names the
+  address that was asked for and points at the home page, the package and the REST API.
+  Unmatched requests reached an empty 404 before, since the Worker serves assets with no page
+  to fall back to.
 - Fathom analytics on the site, loaded only when the page is served from a real host, with
   events for rolling, presets, copying a snippet and opening the reference.
 

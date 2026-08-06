@@ -1,22 +1,381 @@
 ---
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2026 Nicola Mustone
-// Placeholder. The marketing page is a later milestone.
+import Base from '../layouts/Base.astro'
+import CodeBlock from '../components/CodeBlock.astro'
+import Logo from '../components/Logo.astro'
+import { API_ORIGIN } from '../config.ts'
+import { LIMITS } from '@rollful/schema'
+
+const PACKAGE_SAMPLE = `import { roll } from 'opendice'
+
+const result = roll('4d6kh3')
+
+result.total           // 14
+result.dice[0].results // [5, 4, 5, 3]
+result.dice[0].kept    // [5, 5, 4]`
+
+const CURL_SAMPLE = `curl 'https://api.rollful.dev/v1/roll?formula=4d6kh3'`
+
+const RESPONSE_SAMPLE = `{
+  "total": 14,
+  "dice": [{
+    "results":   [5, 4, 5, 3],
+    "keptFlags": [true, true, true, false]
+  }]
+}`
+
+/** Enough of the grammar to show it exists. The rest belongs in the documentation. */
+const PRESETS = ['4d6kh3', '1d20adv', '2d6+3', '1d6!p', '1d8+1d4']
+
+const FEATURE_COPY = [
+  {
+    title: 'It shows the working',
+    body: '`results` holds every die rolled and `keptFlags` says which ones counted, so an interface can dim the die advantage dropped rather than hide it.',
+  },
+  {
+    title: 'Auditable randomness',
+    body: 'One draw per die from `crypto.getRandomValues`, with rejection sampling so no face is likelier than another. No streak-breaking, no feels-fair fudging.',
+  },
+  {
+    title: 'A grammar, not a number',
+    body: 'Advantage, keep highest and lowest, exploding, penetrating, group multipliers and tags. Terms combine freely, and a typo is an error rather than a guess.',
+  },
+  {
+    title: 'No game system attached',
+    body: 'It knows what `4d6kh3` means and nothing about what you use it for. No rules, no opinions, no judgment.',
+  },
+  {
+    title: 'Zero dependencies, typed',
+    body: 'The package pulls in nothing, ships its own types and source maps, and runs in browsers, Node and edge runtimes alike.',
+  },
+  {
+    title: 'Free and unauthenticated',
+    body: 'No key, no signup, no account. Bounded by published limits so it stays up, and documented by an OpenAPI 3.1 document you can generate a client from.',
+  },
+]
+
+/**
+ * Backticked spans, split out here rather than in the markup. The regex holds backticks of
+ * its own, and inside a template expression the parser reads them as template-literal
+ * delimiters and loses its place for the rest of the file — including the script below.
+ * Odd indexes are the capture group, so they are the ones to render as code.
+ */
+const FEATURES = FEATURE_COPY.map((feature) => ({
+  title: feature.title,
+  parts: feature.body.split(/`([^`]+)`/),
+}))
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Rollful</title>
-    <meta name="description" content="A hosted dice-rolling API powered by OpenDice." />
-  </head>
-  <body>
-    <main>
-      <h1>Rollful</h1>
-      <p>A hosted dice-rolling API powered by OpenDice.</p>
-      <p><a href="/reference">API reference</a></p>
-    </main>
-  </body>
-</html>
+<Base
+  title="Rollful — a hosted dice-rolling API"
+  description="Roll dice over HTTP. Rollful parses a dice formula, rolls each die through a CSPRNG, and returns every die it rolled. Powered by the OpenDice npm package."
+>
+  <!-- Hero -->
+  <section
+    class="relative overflow-hidden border-b border-zinc-200 bg-zinc-50 dark:border-white/10 dark:bg-ink"
+  >
+    <!-- A soft wash and an oversized d20 behind the hero, so the headline and the roller sit
+         on something. Both are before the content in the DOM and unpositioned, so they stay
+         behind it without needing a z-index. -->
+    <div
+      aria-hidden="true"
+      class="pointer-events-none absolute -top-48 -right-24 h-[40rem] w-[40rem] rounded-full bg-teal/10 blur-3xl dark:bg-aqua/5"
+    >
+    </div>
+    <Logo
+      class="pointer-events-none absolute -right-24 -bottom-32 h-[26rem] w-[26rem] text-teal/10 lg:-right-28 lg:-bottom-40 lg:h-[42rem] lg:w-[42rem] dark:text-aqua/10"
+      strokeWidth={0.5}
+    />
+
+    <div class="relative mx-auto max-w-6xl px-6 py-20 sm:py-24">
+      <div class="grid items-center gap-14 lg:grid-cols-[1.05fr_1fr] lg:gap-16">
+        <div>
+          <div class="flex items-center gap-3">
+            <Logo class="h-9 w-9 text-teal dark:text-aqua" />
+            <span class="text-2xl font-semibold tracking-tight">Rollful</span>
+          </div>
+
+          <h1 class="mt-8 text-4xl font-bold tracking-tight text-balance sm:text-5xl xl:text-6xl">
+            Roll dice anywhere.<br />
+            <span class="text-zinc-400 dark:text-zinc-600">Show the work.</span>
+          </h1>
+
+          <p class="mt-6 max-w-lg text-lg text-pretty text-zinc-600 dark:text-zinc-400">
+            Every die drawn from a <span class="underline underline-offset-3 decoration-dotted" title="Cryptographically Secure Pseudo-Random Number Generator">CSPRNG</span>, and a transparent report of how the process — not just the total. Use it as an <code class="rounded bg-zinc-100 px-1 py-0.5 text-xs text-teal dark:bg-white/5 dark:text-aqua">npm</code> package, or via a hosted API for everything that is not JavaScript.
+          </p>
+
+          <CodeBlock code="npm install opendice" lang="bash" class="mt-10 max-w-md" />
+
+          <div class="mt-6 flex flex-wrap gap-3">
+            <a
+              href="/reference/"
+              data-event="Opened the API reference"
+              class="rounded-lg bg-teal px-6 py-3 text-sm font-medium text-white hover:bg-teal/90 dark:bg-aqua dark:text-ink dark:hover:bg-aqua/90"
+              >Open the API reference →</a
+            >
+            <a
+              href="#quickstart"
+              class="rounded-lg border border-zinc-300 bg-white px-6 py-3 text-sm font-medium hover:bg-zinc-50 dark:border-white/15 dark:bg-transparent dark:hover:bg-ink-soft"
+              >Or call it over HTTP</a
+            >
+          </div>
+        </div>
+
+        <!-- Live roller -->
+        <div
+          class="rounded-2xl border border-zinc-200 bg-white/80 p-6 shadow-xl shadow-zinc-900/5 backdrop-blur-sm dark:border-white/10 dark:bg-ink-soft/80 dark:shadow-black/30"
+        >
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold tracking-widest text-zinc-500 uppercase"
+              >Try it</span
+            >
+            <span class="flex items-center gap-1.5 text-[11px] text-zinc-500">
+              <span class="h-1.5 w-1.5 rounded-full bg-teal dark:bg-aqua"></span>
+              live API
+            </span>
+          </div>
+
+          <form id="roller" class="mt-4 flex gap-2" data-origin={API_ORIGIN}>
+            <label for="formula" class="sr-only">Dice formula</label>
+            <input
+              id="formula"
+              name="formula"
+              value="4d6kh3"
+              maxlength={LIMITS.maxFormulaLength}
+              spellcheck="false"
+              autocomplete="off"
+              autocapitalize="off"
+              class="min-w-0 flex-1 rounded-lg border border-zinc-300 bg-white px-3 py-2.5 font-mono text-sm focus:border-teal focus:ring-2 focus:ring-teal/25 focus:outline-none dark:border-white/15 dark:bg-ink dark:focus:border-aqua dark:focus:ring-aqua/25"
+            />
+            <button
+              type="submit"
+              class="rounded-lg bg-teal px-5 py-2.5 text-sm font-medium text-white hover:bg-teal/90 disabled:opacity-60 dark:bg-aqua dark:text-ink dark:hover:bg-aqua/90"
+              >Roll</button
+            >
+          </form>
+
+          <div class="mt-3 flex flex-wrap gap-1.5">
+            {
+              PRESETS.map((preset) => (
+                <button
+                  type="button"
+                  class="preset rounded-md border border-zinc-200 px-2 py-1 font-mono text-xs text-zinc-600 hover:border-teal hover:text-teal dark:border-white/10 dark:text-zinc-400 dark:hover:border-aqua/50 dark:hover:text-aqua"
+                >
+                  {preset}
+                </button>
+              ))
+            }
+          </div>
+
+          <output
+            id="result"
+            for="roller"
+            class="mt-6 flex min-h-36 flex-col justify-center border-t border-zinc-200 pt-6 dark:border-white/10"
+            aria-live="polite"></output>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="mx-auto max-w-6xl px-6 py-20">
+    <h2 class="max-w-2xl text-3xl font-bold tracking-tight">
+      Everything a dice roll should tell you.
+    </h2>
+    <p class="mt-3 max-w-2xl text-zinc-600 dark:text-zinc-400">
+      The package and the API return the same shape, so what you learn in one applies to the
+      other.
+    </p>
+
+    <div class="mt-12 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        FEATURES.map((feature) => (
+          <div>
+            <h3 class="text-base font-semibold">{feature.title}</h3>
+            <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+              {feature.parts.map((part, i) =>
+                i % 2 === 1 ? (
+                  <code class="rounded bg-zinc-100 px-1 py-0.5 text-xs text-teal dark:bg-white/5 dark:text-aqua">
+                    {part}
+                  </code>
+                ) : (
+                  part
+                ),
+              )}
+            </p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- Two ways to use it -->
+  <section
+    id="quickstart"
+    class="relative overflow-hidden border-t border-zinc-200 bg-zinc-50 dark:border-white/10 dark:bg-ink"
+  >
+    <!-- The hero's wash, mirrored to come from the left. No die here: the hero keeps that
+         to itself, so it stays a signature rather than a motif. -->
+    <div
+      aria-hidden="true"
+      class="pointer-events-none absolute -top-40 -left-32 h-[40rem] w-[40rem] rounded-full bg-teal/10 blur-3xl dark:bg-aqua/5"
+    >
+    </div>
+
+    <div class="relative mx-auto max-w-6xl px-6 py-20">
+      <h2 class="text-3xl font-bold tracking-tight">Two ways to roll</h2>
+      <p class="mt-3 text-zinc-600 dark:text-zinc-400">
+        The dice logic is an npm package. Rollful hosts it, which matters when the roll cannot happen on the client.
+      </p>
+
+      <!-- items-start so a taller column does not stretch the other into empty space. -->
+      <div class="mt-12 grid items-start gap-x-10 gap-y-12 md:grid-cols-2">
+        <div>
+          <h3 class="text-base font-semibold">In JavaScript, use the package</h3>
+          <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+            No network call, no rate limit, no dependency on this service staying up. Everything runs in the browser.
+          </p>
+          <CodeBlock code={PACKAGE_SAMPLE} lang="js" class="mt-5" />
+        </div>
+
+        <div>
+          <h3 class="text-base font-semibold">Anywhere else, call the API</h3>
+          <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+            A server-authoritative roll, a result several people must agree on, or a language
+            with no OpenDice build.
+          </p>
+          <CodeBlock code={CURL_SAMPLE} lang="bash" class="mt-5" />
+          <CodeBlock code={RESPONSE_SAMPLE} lang="json" label="Response" class="mt-3" />
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { track } from '../lib/analytics.ts'
+
+  // Anything carrying data-event reports itself when clicked, so a new link needs an
+  // attribute rather than another listener.
+  for (const el of document.querySelectorAll<HTMLElement>('[data-event]')) {
+    el.addEventListener('click', () => track(el.dataset.event!))
+  }
+
+  const form = document.getElementById('roller') as HTMLFormElement | null
+  const output = document.getElementById('result') as HTMLElement | null
+
+  if (form && output) {
+    const origin = form.dataset.origin!
+    const input = form.querySelector('input') as HTMLInputElement
+    const button = form.querySelector('button') as HTMLButtonElement
+
+    const el = (tag: string, className: string, text?: string) => {
+      const node = document.createElement(tag)
+      node.className = className
+      if (text !== undefined) node.textContent = text
+      return node
+    }
+
+    /** Kept dice carry the accent, dropped ones are dimmed and struck. */
+    const KEPT = 'font-semibold text-teal dark:text-aqua'
+    const DROPPED = 'text-zinc-400 line-through decoration-1 dark:text-zinc-600'
+    const MODIFIER = 'text-ink dark:text-zinc-100'
+
+    /**
+     * The working, as one line of text rather than a row of boxes: `d6 [2, 1, 3, 5, 5, 3]`,
+     * with the dice a keep rule dropped struck through where they were rolled. Listing the
+     * kept ones again after an arrow would say the same thing twice and lose which of two
+     * equal dice actually counted.
+     *
+     * The count is left off the head because an exploding die rolls more times than it was
+     * asked for, and `4d6` would then be a lie.
+     */
+    function working(result: any): DocumentFragment {
+      const frag = document.createDocumentFragment()
+      const text = (value: string) => document.createTextNode(value)
+
+      result.dice.forEach((group: any, index: number) => {
+        if (index > 0) frag.append(text(' + '))
+        frag.append(text(`${group.sign < 0 ? '−' : ''}d${group.sides} [`))
+        group.results.forEach((value: number, i: number) => {
+          if (i > 0) frag.append(text(', '))
+          frag.append(el('span', group.keptFlags[i] ? KEPT : DROPPED, String(value)))
+        })
+        frag.append(text(']'))
+        if (group.multiplier !== 1) frag.append(text(` ×${group.multiplier}`))
+      })
+
+      // Each flat modifier on its own: `+1 -6` says where the numbers came from, where
+      // their sum of -5 would hide it.
+      const flats = result.modifiers
+        .filter((m: number) => m !== 0)
+        .map((m: number) => (m >= 0 ? `+${m}` : `${m}`))
+        .join(' ')
+      if (flats) frag.append(el('span', MODIFIER, ` ${flats}`))
+
+      const tail: string[] = []
+      if (result.advantageState !== 'normal') tail.push(result.advantageState)
+      if (result.tag) tail.push(result.tag)
+      if (tail.length > 0) frag.append(text(` · ${tail.join(' · ')}`))
+
+      return frag
+    }
+
+    function showError(message: string) {
+      output!.replaceChildren(
+        el(
+          'p',
+          'm-0 font-mono text-sm text-red-700 dark:text-red-400',
+          message,
+        ),
+      )
+    }
+
+    function showRoll(result: any) {
+      const total = el(
+        'div',
+        'font-mono text-6xl font-bold leading-none tabular-nums text-ink dark:text-white',
+        String(result.total),
+      )
+      const breakdown = el(
+        'p',
+        'mt-4 mb-0 font-mono text-sm leading-relaxed break-words text-zinc-500',
+      )
+      breakdown.append(working(result))
+      output!.replaceChildren(total, breakdown)
+    }
+
+    async function submit() {
+      button.disabled = true
+      try {
+        const url = `${origin}/v1/roll?formula=${encodeURIComponent(input.value.trim())}`
+        const response = await fetch(url)
+        const body = await response.json()
+        if (response.ok) showRoll(body)
+        else showError(body?.error?.message ?? 'That roll was rejected.')
+      } catch {
+        showError('Could not reach the API. Check your connection and try again.')
+      } finally {
+        button.disabled = false
+      }
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault()
+      track('Rolled dice')
+      void submit()
+    })
+
+    for (const preset of document.querySelectorAll<HTMLButtonElement>('.preset')) {
+      preset.addEventListener('click', () => {
+        input.value = preset.textContent!.trim()
+        track('Used a preset')
+        void submit()
+      })
+    }
+
+    // The first roll fills the panel rather than being asked for, so it is not an event.
+    void submit()
+  }
+</script>

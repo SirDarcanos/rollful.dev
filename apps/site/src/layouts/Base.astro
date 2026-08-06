@@ -1,0 +1,119 @@
+---
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2026 Nicola Mustone
+import { SEO } from 'astro-seo'
+import Analytics from '../components/Analytics.astro'
+import '../styles/global.css'
+
+interface Props {
+  title: string
+  description: string
+}
+
+const { title, description } = Astro.props
+const canonical = new URL(Astro.url.pathname, Astro.site).href
+const NPM = 'https://www.npmjs.com/package/opendice'
+const SOURCE = 'https://github.com/SirDarcanos/rollful.dev'
+const OPENAPI = 'https://api.rollful.dev/openapi.json'
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- openGraph is omitted until there is a real image to point at: astro-seo requires
+         one, and a link preview showing a 404 is worse than a plain one. -->
+    <SEO
+      title={title}
+      description={description}
+      canonical={canonical}
+      twitter={{ card: 'summary', title, description }}
+      extend={{
+        meta: [
+          { name: 'theme-color', content: '#212121' },
+          { property: 'og:title', content: title },
+          { property: 'og:description', content: description },
+          { property: 'og:url', content: canonical },
+          { property: 'og:type', content: 'website' },
+          { property: 'og:site_name', content: 'Rollful' },
+        ],
+      }}
+    />
+    <Analytics />
+  </head>
+
+  <body class="bg-white text-ink antialiased dark:bg-ink dark:text-zinc-100 [color-scheme:light_dark]">
+    <main>
+      <slot />
+    </main>
+
+    <footer class="border-t border-zinc-200 dark:border-white/10">
+      <div
+        class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-10 text-sm text-zinc-600 dark:text-zinc-400"
+      >
+        <p class="m-0">
+          A hosted dice-rolling API powered by{' '}
+          <a href={NPM} class="text-teal underline-offset-2 hover:underline dark:text-aqua"
+            >OpenDice</a
+          >. MIT licensed.
+        </p>
+        <!-- Icon links carry both a title, for a pointer, and an aria-label, for everything
+             else: an icon on its own gives a screen reader nothing to announce. -->
+        <nav class="flex flex-wrap items-center gap-5">
+          <a href="/reference/" class="hover:text-ink dark:hover:text-white">Reference</a>
+
+          <a
+            href={NPM}
+            title="OpenDice on npm"
+            aria-label="OpenDice on npm"
+            class="text-zinc-500 hover:text-ink dark:hover:text-aqua"
+          >
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M1.763 0C.786 0 0 .786 0 1.763v20.474C0 23.214.786 24 1.763 24h20.474c.977 0 1.763-.786 1.763-1.763V1.763C24 .786 23.214 0 22.237 0zM5.13 5.323l13.837.019-.009 13.836h-3.464l.01-10.382h-3.456L12.04 19.17H5.113z"
+              ></path>
+            </svg>
+          </a>
+
+          <a
+            href={OPENAPI}
+            title="OpenAPI document"
+            aria-label="OpenAPI document"
+            class="text-zinc-500 hover:text-ink dark:hover:text-aqua"
+          >
+            <svg
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h1"></path>
+              <path d="M16 3h1a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2 2 2 0 0 0-2 2v5a2 2 0 0 1-2 2h-1"
+              ></path>
+            </svg>
+          </a>
+
+          <a
+            href={SOURCE}
+            title="Source on GitHub"
+            aria-label="Source on GitHub"
+            class="text-zinc-500 hover:text-ink dark:hover:text-aqua"
+          >
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
+              ></path>
+            </svg>
+          </a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

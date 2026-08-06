@@ -1,0 +1,53 @@
+/* SPDX-License-Identifier: MIT
+   Copyright (C) 2026 Nicola Mustone */
+
+@import 'tailwindcss';
+
+/* The palette, as Tailwind colours, so pages use `bg-ink` and `text-aqua` rather than
+   arbitrary hex values. Teal carries the accent on light backgrounds and aqua on dark:
+   aqua on white is 1.4:1 and unreadable, teal on white is 5.8:1. */
+@theme {
+  --color-ink: #212121;
+  --color-ink-soft: #323232;
+  --color-teal: #0d7377;
+  --color-aqua: #14ffec;
+}
+
+/* An explicit focus ring in the palette. The browser default is a thin light blue that all
+   but disappears on #212121, and controls that draw their own ring turn the outline off,
+   which would leave nothing behind if that ring ever failed to apply. Keyboard only, so a
+   mouse click does not leave a ring behind. */
+:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :focus-visible {
+    outline-color: var(--color-aqua);
+  }
+}
+
+/* Shiki is asked for two themes and no default colour, so it emits both as custom properties
+   on every token and the page picks one here. Without this the code renders unstyled.
+   Backgrounds stay transparent: every code block sits in a container that already has one,
+   and Shiki's own would be a second, slightly different shade inside it. */
+.astro-code,
+.astro-code span {
+  color: var(--shiki-light);
+  background-color: transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+  .astro-code,
+  .astro-code span {
+    color: var(--shiki-dark);
+  }
+}
+
+.astro-code {
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  background-color: transparent;
+}

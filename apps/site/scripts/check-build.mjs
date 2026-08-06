@@ -15,7 +15,13 @@ import { readdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 const DIST = new URL('../dist/', import.meta.url).pathname
-const FORBIDDEN = /localhost|127\.0\.0\.1|0\.0\.0\.0/
+
+/**
+ * A local address used as an origin, rather than any mention of one. The analytics snippet
+ * names localhost on purpose, to keep itself from reporting there, and matching bare words
+ * flagged that as a failure.
+ */
+const FORBIDDEN = /(https?:)?\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?/
 
 async function* files(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {

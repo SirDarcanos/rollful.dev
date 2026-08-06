@@ -13,13 +13,17 @@
     "typecheck": "astro check"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
     "@rollful/schema": "*",
     "@scalar/api-reference": "^1.64.0",
     "@scalar/client-side-rendering": "^0.3.5",
-    "astro": "^7.1.6"
+    "astro": "^7.1.6",
+    "astro-seo": "^1.1.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
+    "@tailwindcss/vite": "^4.3.3",
+    "tailwindcss": "^4.3.3",
     "wrangler": "^4.119.0"
   }
 }

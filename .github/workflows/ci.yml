@@ -24,3 +24,14 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run format:check
+
+      # The reference is generated from the committed document, so a change to the API that
+      # never reached it would ship documentation describing the previous version.
+      - name: Check the OpenAPI document is current
+        run: |
+          npm run openapi --workspace @rollful/api
+          if ! git diff --quiet -- apps/site/src/openapi.json; then
+            echo "::error::apps/site/src/openapi.json is out of date. Run: npm run openapi --workspace @rollful/api"
+            git --no-pager diff -- apps/site/src/openapi.json
+            exit 1
+          fi

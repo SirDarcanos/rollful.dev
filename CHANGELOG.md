@@ -33,3 +33,19 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   and the document cannot disagree, and a test pins the two together.
 - Deployment for the site, as a Worker with an assets binding serving `rollful.dev`, with a
   workflow that runs when the site or the schemas it reads change.
+- Penetrating dice, from OpenDice 1.2.0: `1d6!p` explodes like `1d6!`, but every roll after
+  the first counts one less. A penetrated 1 is recorded as `0`, so `results` can now hold a
+  number below 1, which the response schema documents.
+- A description for each tag in the OpenAPI document, so a reference has something to show
+  beside `Rolling` and `Service` rather than an empty column.
+- The marketing page at `rollful.dev`: the install command, a roller against the live API
+  that prints its working, and the case for the package over the API. The API reference
+  carries the site header and the same palette.
+- Fathom analytics on the site, loaded only when the page is served from a real host, with
+  events for rolling, presets, copying a snippet and opening the reference.
+
+### Fixed
+
+- The site deploy's health check followed no redirects, so it requested `/reference`, was
+  answered with a 307 to `/reference/`, and failed a deploy that had succeeded. It now
+  follows the redirect and checks the page points at the production API.

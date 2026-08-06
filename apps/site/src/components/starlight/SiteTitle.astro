@@ -1,0 +1,41 @@
+---
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2026 Nicola Mustone
+
+/**
+ * Starlight's own title knows only about the documentation, which would leave a reader
+ * inside `/docs` with no way back to the rest of the site. This links home and marks where
+ * they are.
+ *
+ * The die is inlined rather than passed to Starlight's `logo` option, which renders an
+ * `<img>`: an image cannot take `currentColor`, so it would need a fixed colour and would
+ * then be wrong in one of the two themes.
+ */
+import Logo from '../Logo.astro'
+---
+
+<a href="/" class="site-title">
+  <Logo class="logo" />
+  <span class="wordmark">Rollful</span>
+</a>
+
+<style>
+  .site-title {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    text-decoration: none;
+    color: var(--sl-color-white);
+    font-size: var(--sl-text-h4);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .logo {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--sl-color-text-accent);
+  }
+
+
+</style>

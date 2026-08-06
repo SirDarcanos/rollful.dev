@@ -91,4 +91,29 @@ const light = {
   ],
 } satisfies ThemeRegistrationRaw
 
+/** For Astro's `<Code>`, which takes one theme per colour scheme. */
 export const SHIKI_THEMES = { light, dark }
+
+/**
+ * For Starlight, whose Expressive Code takes an ordered list and reads each theme's own
+ * `type` to decide which scheme it belongs to.
+ *
+ * Expressive Code reads VS Code's `tokenColors` where Shiki also accepts TextMate's
+ * `settings`. Given only `settings`, it loads the theme and colours nothing, so both keys
+ * carry the same list rather than the rules being written out twice.
+ *
+ * The background is set here because Expressive Code paints the frame from the theme, and
+ * the transparent value the site's own blocks rely on would leave it unpainted.
+ */
+export const EXPRESSIVE_CODE_THEMES = [
+  {
+    ...dark,
+    colors: { ...dark.colors, 'editor.background': '#1c1c1c' },
+    tokenColors: dark.settings,
+  },
+  {
+    ...light,
+    colors: { ...light.colors, 'editor.background': '#fafafa' },
+    tokenColors: light.settings,
+  },
+]

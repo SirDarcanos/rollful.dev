@@ -62,7 +62,10 @@ export const DieGroup = z
   .object({
     sides: z.int(),
     sign: z.union([z.literal(1), z.literal(-1)]),
-    results: z.array(z.int()).meta({ description: 'Every die rolled, including dropped ones.' }),
+    results: z.array(z.int()).meta({
+      description:
+        'Every die rolled, including dropped ones. A penetrated 1 is recorded as 0, the one case this holds a number below 1.',
+    }),
     kept: z.array(z.int()).meta({ description: 'The dice that counted towards the total.' }),
     keptFlags: z
       .array(z.boolean())

@@ -62,16 +62,17 @@ curl -X POST https://api.rollful.dev/v1/roll \
 
 ## Formula grammar
 
-| Formula              | Meaning                                                 |
-| -------------------- | ------------------------------------------------------- |
-| `2d6`                | roll two six-sided dice                                 |
-| `1d20+7`, `10-1d4`   | flat modifiers                                          |
-| `1d20adv`, `1d20dis` | advantage and disadvantage                              |
-| `4d6kh3`, `4d6kl3`   | keep the highest or lowest three                        |
-| `1d6!`               | exploding: a top face rolls again and adds              |
-| `1d6x10`             | multiply this group's total by ten                      |
-| `1d8+1d4+3`          | several terms                                           |
-| `2d6 fire`           | a trailing tag, when the request lists `fire` in `tags` |
+| Formula              | Meaning                                                            |
+| -------------------- | ------------------------------------------------------------------ |
+| `2d6`                | roll two six-sided dice                                            |
+| `1d20+7`, `10-1d4`   | flat modifiers                                                     |
+| `1d20adv`, `1d20dis` | advantage and disadvantage                                         |
+| `4d6kh3`, `4d6kl3`   | keep the highest or lowest three                                   |
+| `1d6!`               | exploding: a top face rolls again and adds                         |
+| `1d6!p`              | penetrating: like `!`, but each roll after the first counts 1 less |
+| `1d6x10`             | multiply this group's total by ten                                 |
+| `1d8+1d4+3`          | several terms                                                      |
+| `2d6 fire`           | a trailing tag, when the request lists `fire` in `tags`            |
 
 ## Limits
 

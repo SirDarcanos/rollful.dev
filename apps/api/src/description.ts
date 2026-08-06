@@ -17,7 +17,7 @@ rolled rather than just the answer. It is not tied to any game system: it knows 
 If you are already in JavaScript or TypeScript, you may not need this API at all. The
 package rolls locally, with no network call:
 
-\`\`\`bash
+\`\`\`shell
 npm install opendice
 \`\`\`
 
@@ -46,17 +46,6 @@ console.log(result.dice[0].keptFlags) // [true, true, true, false] — which one
 The API is plain JSON over HTTP with no authentication, so every language works. Pick one
 from the client libraries panel beside each endpoint for a ready-made snippet.
 
-\`\`\`python
-import requests
-
-result = requests.post(
-    'https://api.rollful.dev/v1/roll',
-    json={'formula': '1d20+7', 'advantage': 'advantage'},
-).json()
-
-print(result['total'], result['advantageState'])
-\`\`\`
-
 ## Showing the working
 
 Every response reports each die group separately. \`results\` holds every die rolled,
@@ -64,6 +53,9 @@ Every response reports each die group separately. \`results\` holds every die ro
 interface can dim a dropped die rather than hide it. \`naturalHigh\` and \`naturalLow\` are
 set only when a group kept exactly one die, because a top face among several is not a
 critical on its own.
+
+With penetrating dice (\`1d6!p\`) a penetrated 1 is recorded as \`0\`, which is the only
+case \`results\` holds a number below 1. \`kept\` still sums to \`total\`.
 
 ## Limits
 

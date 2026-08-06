@@ -94,6 +94,21 @@ describe('the grammar round-trips through the API', () => {
     expect(body.dice[0]!.results.length).toBeGreaterThanOrEqual(100)
   })
 
+  it('penetrates, which is the one case results can hold a zero', async () => {
+    const zeroSeen = await Promise.all(
+      Array.from({ length: 40 }, async () => {
+        const body = await (
+          await post('/v1/roll', { formula: '20d2!p' })
+        ).json<{ dice: { results: number[]; kept: number[]; total: number }[] }>()
+        const group = body.dice[0]!
+        expect(group.results.length).toBeGreaterThanOrEqual(20)
+        expect(group.kept.reduce((a, b) => a + b, 0)).toBe(group.total)
+        return group.results.includes(0)
+      }),
+    )
+    expect(zeroSeen.some(Boolean)).toBe(true)
+  })
+
   it('accepts a trailing tag only when the request lists it', async () => {
     const accepted = await post('/v1/roll', { formula: '2d6 fire', tags: ['fire'] })
     expect(accepted.status).toBe(200)

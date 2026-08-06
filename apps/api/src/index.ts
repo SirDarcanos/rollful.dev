@@ -71,6 +71,19 @@ app.doc31('/openapi.json', (c) => ({
     license: { name: 'MIT', url: 'https://opensource.org/licenses/MIT' },
   },
   servers: [{ url: 'https://api.rollful.dev', description: 'Production' }],
+  // Every route carries one of these tags. Without a description here, a reference renders
+  // the group heading against an empty column.
+  tags: [
+    {
+      name: 'Rolling',
+      description:
+        'Rolling dice. One roll from a query string for links and `curl`, the same roll from a body when it carries bonuses or tags, and a batch when several rolls should happen together. Every response reports each die, not only the total.',
+    },
+    {
+      name: 'Service',
+      description: 'Whether the API is up. Rolls nothing, and is not rate limited differently.',
+    },
+  ],
 }))
 
 app.notFound(() => {

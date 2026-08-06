@@ -1,11 +1,14 @@
 ---
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2026 Nicola Mustone
+import Analytics from '../components/Analytics.astro'
+import SiteHeader from '../components/SiteHeader.astro'
 import { API_ORIGIN, OPENAPI_URL } from '../config.ts'
+import '../styles/global.css'
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -14,11 +17,22 @@ import { API_ORIGIN, OPENAPI_URL } from '../config.ts'
       name="description"
       content="Interactive reference for the Rollful dice-rolling API. Try every endpoint from the browser."
     />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <!-- Astro builds directory-style, so the served URL carries the trailing slash. -->
     <link rel="canonical" href="https://rollful.dev/reference/" />
+    <meta name="theme-color" content="#212121" />
+    <Analytics />
   </head>
-  <body>
-    <div id="reference" data-spec={OPENAPI_URL} data-origin={API_ORIGIN}></div>
+
+  <body
+    class="flex h-full flex-col bg-white text-ink dark:bg-ink dark:text-zinc-100 [color-scheme:light_dark]"
+  >
+    <SiteHeader />
+
+    <!-- Scalar sizes itself to its container, so the header takes its space out of the
+         viewport rather than pushing the reference off the bottom. -->
+    <div id="reference" class="min-h-0 flex-1" data-spec={OPENAPI_URL} data-origin={API_ORIGIN}>
+    </div>
 
     <script>
       import { createApiReference } from '@scalar/api-reference'
@@ -41,35 +55,111 @@ import { API_ORIGIN, OPENAPI_URL } from '../config.ts'
           title: 'API reference — Rollful',
           description: 'Interactive reference for the Rollful dice-rolling API.',
         },
-        // "Ask AI" uploads the OpenAPI document to Scalar and puts their Terms and Privacy
-        // Policy on this page. Hidden by href, which survives their class names changing.
-        // "Powered by Scalar" is deliberately left alone as credit for the tool.
         customCss: `
+          /* The site palette, mapped onto Scalar's own variables. */
+          .light-mode {
+            --scalar-color-1: #212121;
+            --scalar-color-2: #52525b;
+            --scalar-color-3: #71717a;
+            --scalar-color-accent: #0d7377;
+            --scalar-background-1: #ffffff;
+            --scalar-background-2: #fafafa;
+            --scalar-background-3: #f4f4f5;
+            --scalar-background-accent: #0d73771a;
+            --scalar-border-color: #e4e4e7;
+            --scalar-sidebar-background-1: #fafafa;
+            --scalar-sidebar-color-1: #212121;
+            --scalar-sidebar-color-2: #52525b;
+            --scalar-sidebar-color-active: #0d7377;
+            --scalar-sidebar-item-active-background: #0d73771a;
+            --scalar-sidebar-border-color: #e4e4e7;
+            --scalar-button-1: #0d7377;
+            --scalar-button-1-color: #ffffff;
+            --scalar-button-1-hover: #0b6165;
+          }
+
+          .dark-mode {
+            --scalar-color-1: #fafafa;
+            --scalar-color-2: #a1a1aa;
+            --scalar-color-3: #71717a;
+            --scalar-color-accent: #14ffec;
+            --scalar-background-1: #212121;
+            --scalar-background-2: #323232;
+            --scalar-background-3: #3d3d3d;
+            --scalar-background-accent: #14ffec1a;
+            --scalar-border-color: rgba(255, 255, 255, 0.1);
+            --scalar-sidebar-background-1: #1c1c1c;
+            --scalar-sidebar-color-1: #fafafa;
+            --scalar-sidebar-color-2: #a1a1aa;
+            --scalar-sidebar-color-active: #14ffec;
+            --scalar-sidebar-item-active-background: #14ffec1a;
+            --scalar-sidebar-border-color: rgba(255, 255, 255, 0.1);
+            --scalar-button-1: #14ffec;
+            --scalar-button-1-color: #212121;
+            --scalar-button-1-hover: #3affef;
+          }
+
+
+          /* Code samples, matched to the site's syntax colours. Scalar drives these from
+             --scalar-color-purple and friends, but those same variables colour the GET and
+             POST badges and the status codes, so the token classes are targeted directly
+             and the method colours keep their meaning. */
+          .light-mode .hljs-keyword,
+          .light-mode .hljs-title,
+          .light-mode .hljs-title.function_,
+          .light-mode .hljs-built_in,
+          .light-mode .hljs-attr,
+          .light-mode .hljs-property { color: #0d7377; }
+          .light-mode .hljs-string { color: #0f5f62; }
+          .light-mode .hljs-number,
+          .light-mode .hljs-literal,
+          .light-mode .hljs-variable { color: #212121; }
+          .light-mode .hljs-comment { color: #5f5f68; }
+
+          .dark-mode .hljs-keyword,
+          .dark-mode .hljs-title,
+          .dark-mode .hljs-title.function_,
+          .dark-mode .hljs-built_in,
+          .dark-mode .hljs-attr,
+          .dark-mode .hljs-property { color: #14ffec; }
+          .dark-mode .hljs-string { color: #9be7de; }
+          .dark-mode .hljs-number,
+          .dark-mode .hljs-literal,
+          .dark-mode .hljs-variable { color: #e4e4e7; }
+          .dark-mode .hljs-comment { color: #a1a1aa; }
+
+          /* Scalar's promotion of its own products. "Powered by Scalar" is deliberately
+             left alone as credit for the tool. */
+          .open-api-client-button { display: none !important; }
           .disclaimerText { display: none; }
           a[href*="scalar.com/legal"] { display: none; }
+
+          /* The version badges. Endpoints already sit under /v1, and a deployment version
+             beside them invites confusion about which version is the contract. */
+          .section-content > .flex > .badge { display: none; }
         `,
       })
 
       hideAskAi()
 
+
       /**
-       * The Ask AI button carries only utility classes and a Vue scope attribute, so there
-       * is nothing stable to write CSS against. Matching its label instead fails safe: if
-       * Scalar renames it, the button reappears rather than something else disappearing.
+       * The Ask AI buttons carry only utility classes and a Vue scope attribute, so there is
+       * nothing stable to write CSS against, and Scalar renders operations lazily so more
+       * appear as the page is scrolled. Watching the tree and matching the label handles
+       * both, and fails safe: if Scalar renames it, the button reappears rather than
+       * something else disappearing.
        */
       function hideAskAi() {
-        const deadline = Date.now() + 5000
-        const timer = setInterval(() => {
-          const button = [...document.querySelectorAll('button')].find(
-            (b) => b.textContent?.trim() === 'Ask AI',
-          )
-          if (button) {
-            button.style.display = 'none'
-            clearInterval(timer)
-          } else if (Date.now() > deadline) {
-            clearInterval(timer)
+        const hide = () => {
+          for (const button of document.querySelectorAll('button')) {
+            if (/^ask ai/i.test(button.textContent?.trim() ?? '')) {
+              button.style.display = 'none'
+            }
           }
-        }, 100)
+        }
+        hide()
+        new MutationObserver(hide).observe(document.body, { childList: true, subtree: true })
       }
     </script>
   </body>

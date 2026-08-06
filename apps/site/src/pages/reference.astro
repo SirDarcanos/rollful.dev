@@ -14,7 +14,8 @@ import { API_ORIGIN, OPENAPI_URL } from '../config.ts'
       name="description"
       content="Interactive reference for the Rollful dice-rolling API. Try every endpoint from the browser."
     />
-    <link rel="canonical" href="https://rollful.dev/reference" />
+    <!-- Astro builds directory-style, so the served URL carries the trailing slash. -->
+    <link rel="canonical" href="https://rollful.dev/reference/" />
   </head>
   <body>
     <div id="reference" data-spec={OPENAPI_URL} data-origin={API_ORIGIN}></div>

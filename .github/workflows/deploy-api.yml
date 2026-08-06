@@ -49,15 +49,20 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
+      # Waits before the first attempt and keeps trying for two minutes. Cloudflare needs a
+      # moment to put a new version on every edge, and this check used to start a tenth of a
+      # second after wrangler returned and give up 25 seconds later — failing a deploy that
+      # had worked. Each attempt prints what came back, so a real failure says why.
       - name: Check the deployed API answers
         run: |
-          for attempt in 1 2 3 4 5; do
-            if curl -sf 'https://api.rollful.dev/v1/health' | grep -q '"status":"ok"'; then
-              echo "Health check passed"
+          for attempt in $(seq 1 12); do
+            sleep 10
+            body="$(curl -sS --max-time 10 'https://api.rollful.dev/v1/health' 2>&1 || true)"
+            if printf '%s' "$body" | grep -q '"status":"ok"'; then
+              echo "Health check passed on attempt $attempt"
               exit 0
             fi
-            echo "Attempt $attempt failed, retrying"
-            sleep 5
+            echo "Attempt $attempt: $(printf '%s' "$body" | head -c 150)"
           done
-          echo "::error::The deployed API did not answer /v1/health"
+          echo "::error::The deployed API did not answer /v1/health within two minutes"
           exit 1

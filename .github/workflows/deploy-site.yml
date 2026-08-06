@@ -45,17 +45,21 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       # -L because /reference redirects to /reference/, which is how Astro builds it.
+      #
+      # Waits before the first attempt and keeps trying for two minutes. Cloudflare needs a
+      # moment to put a new version on every edge, and this check used to start immediately
+      # after wrangler returned and give up 25 seconds later — failing a deploy that had
+      # worked. Each attempt prints what came back, so a real failure says why.
       - name: Check the deployed site answers
         run: |
-          for attempt in 1 2 3 4 5; do
-            page="$(curl -sfL 'https://rollful.dev/reference/' || true)"
+          for attempt in $(seq 1 12); do
+            sleep 10
+            page="$(curl -sSL --max-time 10 'https://rollful.dev/reference/' 2>&1 || true)"
             if printf '%s' "$page" | grep -q 'data-spec="https://api.rollful.dev/openapi.json"'; then
-              echo "Reference page served, pointing at the production API"
+              echo "Reference page served on attempt $attempt, pointing at the production API"
               exit 0
             fi
-            echo "Attempt $attempt failed, retrying"
-            sleep 5
+            echo "Attempt $attempt: $(printf '%s' "$page" | head -c 150)"
           done
-          echo "::error::The deployed site did not serve /reference/ pointing at the production API"
-          printf '%s' "$page" | head -c 500
+          echo "::error::The deployed site did not serve /reference/ pointing at the production API within two minutes"
           exit 1

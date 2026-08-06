@@ -123,7 +123,7 @@ const FEATURES = FEATURE_COPY.map((feature) => ({
 
         <!-- Live roller -->
         <div
-          class="rounded-2xl border border-zinc-200 bg-white/80 p-6 shadow-xl shadow-zinc-900/5 backdrop-blur-sm dark:border-white/10 dark:bg-ink-soft/80 dark:shadow-black/30"
+          class="framed p-6 shadow-xl shadow-zinc-900/5 dark:shadow-black/30"
         >
           <div class="flex items-center justify-between">
             <span class="text-[11px] font-semibold tracking-widest text-zinc-500 uppercase"
@@ -145,11 +145,11 @@ const FEATURES = FEATURE_COPY.map((feature) => ({
               spellcheck="false"
               autocomplete="off"
               autocapitalize="off"
-              class="min-w-0 flex-1 rounded-lg border border-zinc-300 bg-white px-3 py-2.5 font-mono text-sm focus:border-teal focus:ring-2 focus:ring-teal/25 focus:outline-none dark:border-white/15 dark:bg-ink dark:focus:border-aqua dark:focus:ring-aqua/25"
+              class="min-w-0 flex-1 border border-zinc-300 bg-white px-3 py-2.5 font-mono text-sm focus:border-teal focus:ring-2 focus:ring-teal/25 focus:outline-none dark:border-white/15 dark:bg-ink dark:focus:border-aqua dark:focus:ring-aqua/25"
             />
             <button
               type="submit"
-              class="rounded-lg bg-teal px-5 py-2.5 text-sm font-medium text-white hover:bg-teal/90 disabled:opacity-60 dark:bg-aqua dark:text-ink dark:hover:bg-aqua/90"
+              class="bg-teal px-5 py-2.5 text-sm font-medium text-white hover:bg-teal/90 disabled:opacity-60 dark:bg-aqua dark:text-ink dark:hover:bg-aqua/90"
               >Roll</button
             >
           </form>
@@ -159,7 +159,7 @@ const FEATURES = FEATURE_COPY.map((feature) => ({
               PRESETS.map((preset) => (
                 <button
                   type="button"
-                  class="preset rounded-md border border-zinc-200 px-2 py-1 font-mono text-xs text-zinc-600 hover:border-teal hover:text-teal dark:border-white/10 dark:text-zinc-400 dark:hover:border-aqua/50 dark:hover:text-aqua"
+                  class="preset border border-zinc-200 px-2 py-1 font-mono text-xs text-zinc-600 hover:border-teal hover:text-teal dark:border-white/10 dark:text-zinc-400 dark:hover:border-aqua/50 dark:hover:text-aqua"
                 >
                   {preset}
                 </button>

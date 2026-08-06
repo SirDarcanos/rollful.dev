@@ -80,6 +80,14 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   what the API is and where the rest lives.
 - Operation snippets in every language the generator supports — C, C#, Go, Java, JavaScript,
   Kotlin, Rust and shell — rather than the default of `fetch` and `curl` alone.
+- One code theme across the site: Night Owl, which is what Starlight styles code with, named
+  by the marketing page too. The palette theme written for the site is gone. It had only ever
+  applied to the marketing page — `starlight-openapi` replaces whatever `expressiveCode` is
+  configured, so the documentation rendered in Night Owl regardless, and the same snippet
+  changed appearance between the two.
+- The marketing page frames code the way the documentation does: a shell command shows the
+  three dots of a terminal, anything else a tab with its name, and the copy button waits in
+  the corner until the block is hovered or something in it is focused.
 - No "Overview" links in the generated endpoint groups. The one at the top pointed at a page
   the documentation already had, since "Making a call" opens the REST API, and the one in each
   tag was that tag's description above a list of the endpoints beside it. What is left in the

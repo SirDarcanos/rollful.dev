@@ -8,7 +8,6 @@ import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'astro/config'
 import starlightOpenAPI, { openAPISidebarGroups } from 'starlight-openapi'
 import { FATHOM_SNIPPET } from './src/lib/fathom.ts'
-import { EXPRESSIVE_CODE_THEMES } from './src/shiki-theme.ts'
 import { hideEndpointsOverview } from './src/starlight/endpoints-overview.ts'
 
 export default defineConfig({
@@ -23,9 +22,8 @@ export default defineConfig({
       customCss: ['./src/styles/starlight.css'],
       // Starlight renders its own document, so the site layout's analytics never reach it.
       head: [{ tag: 'script', content: FATHOM_SNIPPET }],
-      // The same syntax colours the rest of the site uses, so code does not change
-      // appearance between the marketing page and the documentation.
-      expressiveCode: { themes: EXPRESSIVE_CODE_THEMES },
+      // No `expressiveCode` here: Starlight's own Night Owl is the site's code theme, and
+      // the marketing page names the same two Shiki themes. See src/lib/code-themes.ts.
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/SirDarcanos/rollful.dev' },
         { icon: 'npm', label: 'npm', href: 'https://www.npmjs.com/package/opendice' },

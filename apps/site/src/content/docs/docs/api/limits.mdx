@@ -1,0 +1,58 @@
+---
+title: Limits
+description: What the Rollful API will refuse, and why each bound exists.
+sidebar:
+  order: 2
+---
+
+import { LIMITS } from '@rollful/schema'
+
+The API is free and unauthenticated, so it is bounded. Every number below is read from the
+same file the API enforces, so this page cannot drift from the guard.
+
+## What OpenDice enforces
+
+These hold whether you call the API or use the package directly.
+
+| Limit                | Value                                        |
+| -------------------- | -------------------------------------------- |
+| Dice per roll        | 1000, counted across every term              |
+| Explosions per die   | 100                                          |
+| Formula length       | 1000 characters                              |
+| Bonuses per roll     | 100                                          |
+| Largest total        | must stay an exact whole number              |
+
+A formula that asks for more dice than that is refused rather than truncated. Past 2^53
+JavaScript stops counting exactly, so a total beyond it would be quietly wrong rather than
+large.
+
+## What the API adds
+
+| Limit             | Value                                                                 |
+| ----------------- | --------------------------------------------------------------------- |
+| Request body      | {LIMITS.maxRequestBytes / 1024} KB                                     |
+| Formula length    | {LIMITS.maxFormulaLength} characters                                   |
+| Bonuses per roll  | {LIMITS.maxBonuses}                                                    |
+| Rolls per batch   | {LIMITS.maxBatchRolls}                                                 |
+| Dice per request  | {LIMITS.maxTotalDice}, counted across every roll in a batch            |
+| Rate limit        | {LIMITS.rateLimit.requests} requests every {LIMITS.rateLimit.windowSeconds} seconds, per address |
+
+The formula limit is shorter than the package's because this is the public tier. Formulas
+that long are generated rather than typed.
+
+### Dice are counted across a whole request
+
+The batch endpoint counts dice across every roll in the request, not per roll. Twenty rolls
+of `1000d2!` would each be legal on their own and would together cost about 34ms of CPU,
+against the 10ms a request gets. Parsing costs about a hundredth of what rolling does, so
+the API parses every formula first, sums the dice, and refuses before rolling anything.
+
+If you need more than {LIMITS.maxTotalDice} dice at once, split the work across requests —
+or use the package, which has no such bound because it is not sharing a server with anyone.
+
+### The rate limit is not a quota
+
+It is enforced per Cloudflare location rather than globally, so the number you can actually
+achieve worldwide is higher than {LIMITS.rateLimit.requests}. Treat it as a guard against
+abuse, not as a budget to plan against. If you need dependable throughput, roll locally with
+the package.

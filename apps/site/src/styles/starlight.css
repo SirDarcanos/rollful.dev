@@ -1,0 +1,53 @@
+/* SPDX-License-Identifier: MIT
+   Copyright (C) 2026 Nicola Mustone
+
+   The site palette, mapped onto Starlight's own variables so the documentation reads as
+   part of Rollful rather than as a default Starlight site. Teal carries the accent on light
+   backgrounds and aqua on dark: aqua on white is 1.4:1 and unreadable. */
+
+:root {
+  --sl-color-accent-low: #0b3b3d;
+  --sl-color-accent: #14ffec;
+  --sl-color-accent-high: #9be7de;
+
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #fafafa;
+  --sl-color-gray-2: #d4d4d8;
+  --sl-color-gray-3: #a1a1aa;
+  --sl-color-gray-4: #52525b;
+  --sl-color-gray-5: #323232;
+  --sl-color-gray-6: #282828;
+  --sl-color-black: #212121;
+
+  --sl-color-text-accent: #14ffec;
+  --sl-color-bg: #212121;
+  --sl-color-bg-nav: #212121;
+  --sl-color-bg-sidebar: #1c1c1c;
+  --sl-color-bg-inline-code: #323232;
+  --sl-color-hairline-light: rgba(255, 255, 255, 0.1);
+  --sl-color-hairline: rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: #d6f2f1;
+  --sl-color-accent: #0d7377;
+  --sl-color-accent-high: #0b5154;
+
+  --sl-color-white: #212121;
+  --sl-color-gray-1: #27272a;
+  --sl-color-gray-2: #3f3f46;
+  --sl-color-gray-3: #71717a;
+  --sl-color-gray-4: #a1a1aa;
+  --sl-color-gray-5: #e4e4e7;
+  --sl-color-gray-6: #f4f4f5;
+  --sl-color-gray-7: #fafafa;
+  --sl-color-black: #ffffff;
+
+  --sl-color-text-accent: #0d7377;
+  --sl-color-bg: #ffffff;
+  --sl-color-bg-nav: #ffffff;
+  --sl-color-bg-sidebar: #fafafa;
+  --sl-color-bg-inline-code: #f4f4f5;
+  --sl-color-hairline-light: #e4e4e7;
+  --sl-color-hairline: #e4e4e7;
+}

@@ -21,7 +21,7 @@ export default defineConfig({
       // Starlight owns only what sits under src/content/docs/docs, so the marketing page
       // and the reference keep their own routes and their own look.
       disable404Route: true,
-      customCss: ['./src/styles/starlight.css'],
+      customCss: ['./src/styles/starlight.css', './src/styles/selection.css'],
       // Starlight renders its own document, so what the site layout puts in the head never
       // reaches it: the analytics, and the card a link to a documentation page unfurls with.
       // Starlight writes the rest of the card itself, including a `summary_large_image` that
@@ -107,7 +107,12 @@ export default defineConfig({
       },
     }),
     mdx(),
-    sitemap(),
+    sitemap({
+      // The tag overview pages the reference generates carry a description and a list of the
+      // endpoints the sidebar is already showing, and nothing links to them. A crawler is not
+      // offered a page a reader cannot reach.
+      filter: (page) => !page.includes('/docs/api/endpoints/operations/tags/'),
+    }),
   ],
   vite: {
     plugins: [tailwindcss()],

@@ -51,3 +51,27 @@
   --sl-color-hairline-light: #e4e4e7;
   --sl-color-hairline: #e4e4e7;
 }
+
+/* The header above a generated operation is a three-column grid — a collapse button, the
+   method and path, and the snippet picker — and the three do not fit a phone. The path
+   column is squeezed until the path scrolls inside it, so `/v1/roll` reads as `/v1/rol`.
+
+   Below this width the row wraps instead and the picker takes a line of its own, which
+   leaves the method and path the full width. The snippet picker is a custom element and
+   wraps on its own, so no rule needs to name it.
+
+   The class is doubled to win on specificity. starlight-openapi writes its own selector as
+   `.sl-openapi-operation-description-header:where(.astro-hash)`, and `:where()` counts for
+   nothing — so the two rules tie, and its stylesheet is the one loaded second. */
+@media (max-width: 30rem) {
+  .sl-openapi-operation-description-header.sl-openapi-operation-description-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+  }
+
+  .sl-openapi-operation-method.sl-openapi-operation-method {
+    flex: 1 1 auto;
+  }
+}

@@ -227,3 +227,15 @@ curl -X POST https://api.rollful.dev/v1/roll/batch \
   -H 'content-type: application/json' \
   -d '{"rolls":[{"formula":"4d6kh3"},{"formula":"4d6kh3"},{"formula":"4d6kh3"}]}'
 ```
+
+## Generating a client
+
+The API describes itself at
+[`api.rollful.dev/openapi.json`](https://api.rollful.dev/openapi.json), an OpenAPI 3.1
+document generated from the same schemas that validate the requests — so it cannot describe
+an API this one does not serve. Point a client generator at it, or import it into whatever
+you use to poke at HTTP.
+
+```bash
+curl https://api.rollful.dev/openapi.json
+```

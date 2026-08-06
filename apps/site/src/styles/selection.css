@@ -1,0 +1,29 @@
+/* SPDX-License-Identifier: MIT
+   Copyright (C) 2026 Nicola Mustone
+
+   Selected text in the site's own accent rather than the browser's blue, which is the one
+   piece of chrome that showed through on both surfaces. Loaded by the marketing page through
+   global.css and by the documentation through Starlight's customCss, since neither
+   stylesheet reaches the other.
+
+   A tint rather than a solid fill, so the text keeps its own colour and stays legible over
+   it. Light is the base and dark the override, as elsewhere on the site; Starlight has a
+   theme toggle, so what it sets on the root has to beat the system preference. */
+
+::selection {
+  background-color: rgba(13, 115, 119, 0.25);
+}
+
+@media (prefers-color-scheme: dark) {
+  ::selection {
+    background-color: rgba(20, 255, 236, 0.3);
+  }
+}
+
+:root[data-theme='light'] ::selection {
+  background-color: rgba(13, 115, 119, 0.25);
+}
+
+:root[data-theme='dark'] ::selection {
+  background-color: rgba(20, 255, 236, 0.3);
+}

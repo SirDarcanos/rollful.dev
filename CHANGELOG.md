@@ -55,6 +55,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   address that was asked for and points at the home page, the package and the REST API.
   Unmatched requests reached an empty 404 before, since the Worker serves assets with no page
   to fall back to.
+- Selected text in the site's accent rather than the browser's blue, on both surfaces. It
+  was the one piece of chrome the palette had not reached.
+- A section on generating a client, pointing at the OpenAPI document. It was linked only from
+  an unlabelled icon in the marketing footer, and never from the REST API documentation,
+  which is where someone looking for it would be.
 - Fathom analytics on the site, loaded only when the page is served from a real host, with
   events for rolling, presets, copying a snippet and opening the reference.
 
@@ -116,6 +121,16 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- The home page's two-column comparison ran off a phone. A grid item will not shrink below
+  its content, and the content is a code block, so each column took the width of its longest
+  line — 526px of it inside a 327px column.
+- The header above a generated operation was squeezed on a phone until the path scrolled
+  inside its own column and `/v1/roll` read as `/v1/rol`. It wraps below 30rem now, with the
+  snippet picker on a line of its own.
+- The tag overview pages the reference generates are no longer offered in the sitemap.
+  Nothing links to them, so a crawler was being pointed at pages a reader cannot reach.
+- `OPENAPI_URL`, which nothing had imported since the reference stopped fetching its document
+  over the network.
 - The site deploy's health check followed no redirects, so it requested `/reference`, was
   answered with a 307 to `/reference/`, and failed a deploy that had succeeded. It now
   follows the redirect and checks the page points at the production API.

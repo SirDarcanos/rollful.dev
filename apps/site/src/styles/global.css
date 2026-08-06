@@ -2,6 +2,7 @@
    Copyright (C) 2026 Nicola Mustone */
 
 @import 'tailwindcss';
+@import './selection.css';
 
 /* The palette, as Tailwind colours, so pages use `bg-ink` and `text-aqua` rather than
    arbitrary hex values. Teal carries the accent on light backgrounds and aqua on dark:

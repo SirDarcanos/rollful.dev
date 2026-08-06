@@ -228,9 +228,13 @@ const FEATURES = FEATURE_COPY.map((feature) => ({
         The dice logic is an npm package. Rollful hosts it, which matters when the roll cannot happen on the client.
       </p>
 
-      <!-- items-start so a taller column does not stretch the other into empty space. -->
+      <!-- items-start so a taller column does not stretch the other into empty space.
+
+           min-w-0 on the columns because a grid item will not shrink below its content, and
+           the content is a code block: without it the column takes the width of the longest
+           line and the section runs off a phone. -->
       <div class="mt-12 grid items-start gap-x-10 gap-y-12 md:grid-cols-2">
-        <div>
+        <div class="min-w-0">
           <h3 class="text-base font-semibold">In JavaScript, use the package</h3>
           <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
             No network call, no rate limit, no dependency on this service staying up. Everything runs in the browser.
@@ -238,7 +242,7 @@ const FEATURES = FEATURE_COPY.map((feature) => ({
           <CodeBlock code={PACKAGE_SAMPLE} lang="js" class="mt-5" />
         </div>
 
-        <div>
+        <div class="min-w-0">
           <h3 class="text-base font-semibold">Anywhere else, call the API</h3>
           <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
             A server-authoritative roll, a result several people must agree on, or a language

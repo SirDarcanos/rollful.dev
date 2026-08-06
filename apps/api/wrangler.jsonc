@@ -1,0 +1,31 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "rollful-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-01",
+  // OpenDice uses no Node built-ins, so nodejs_compat is deliberately absent.
+  "observability": {
+    "enabled": true,
+  },
+  "vars": {
+    "API_VERSION": "0.1.0",
+  },
+  "ratelimits": [
+    {
+      "name": "ROLL_RATE_LIMITER",
+      "namespace_id": "1001",
+      "simple": {
+        "limit": 60,
+        "period": 60,
+      },
+    },
+  ],
+  // A Custom Domain rather than a route pattern: Cloudflare creates and renews the DNS
+  // record and the certificate itself, so there is no DNS record to keep in step by hand.
+  "routes": [
+    {
+      "pattern": "api.rollful.dev",
+      "custom_domain": true,
+    },
+  ],
+}

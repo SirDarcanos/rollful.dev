@@ -1,0 +1,33 @@
+{
+  "name": "rollful",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Rollful — a hosted dice-rolling API powered by OpenDice.",
+  "license": "MIT",
+  "author": "Nicola Mustone",
+  "homepage": "https://rollful.dev",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "dev": "npm run dev --workspace @rollful/api",
+    "deploy": "npm run deploy --workspace @rollful/api",
+    "format": "prettier --write \"**/*.{ts,json,jsonc,md}\" --ignore-path .gitignore",
+    "format:check": "prettier --check \"**/*.{ts,json,jsonc,md}\" --ignore-path .gitignore"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "workerd@1.20260801.1": true
+  }
+}

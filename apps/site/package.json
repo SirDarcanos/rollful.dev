@@ -1,0 +1,23 @@
+{
+  "name": "@rollful/site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The Rollful site: marketing, documentation and the API reference.",
+  "license": "MIT",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "typecheck": "astro check"
+  },
+  "dependencies": {
+    "@rollful/schema": "*",
+    "@scalar/api-reference": "^1.64.0",
+    "@scalar/client-side-rendering": "^0.3.5",
+    "astro": "^7.1.6"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4"
+  }
+}

@@ -8,7 +8,7 @@
  */
 
 import { keptFlags, parseFormula, roll, type Term } from 'opendice'
-import { LIMITS, type RollRequest, type RollResponse } from '@rollful/schema'
+import { ERROR_MESSAGES, LIMITS, type RollRequest, type RollResponse } from '@rollful/schema'
 import { ApiError, asApiError } from './errors.ts'
 
 function diceIn(terms: Term[]): number {
@@ -38,11 +38,7 @@ export function assertWithinDiceBudget(requests: RollRequest[]): void {
       throw asApiError(error)
     }
     if (total > LIMITS.maxTotalDice) {
-      throw new ApiError(
-        400,
-        'too_many_dice',
-        `A request may roll at most ${LIMITS.maxTotalDice} dice in total, but this one asks for more`,
-      )
+      throw new ApiError(400, 'too_many_dice', ERROR_MESSAGES.tooManyDice)
     }
   }
 }

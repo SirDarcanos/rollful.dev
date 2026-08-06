@@ -238,11 +238,82 @@ describe('the OpenAPI document', () => {
     expect(doc.paths['/v1/roll']).toHaveProperty('get')
     expect(doc.paths['/v1/roll']).toHaveProperty('post')
     expect(doc.components.schemas).toHaveProperty('RollResponse')
-    expect(doc.components.schemas).toHaveProperty('ErrorResponse')
+    expect(doc.components.schemas).toHaveProperty('BadRequestError')
   })
 
   it('documents the limits it enforces', async () => {
     const doc = await (await get('/openapi.json')).json<Record<string, unknown>>()
     expect(JSON.stringify(doc)).toContain(String(LIMITS.maxFormulaLength))
   })
+
+  it('gives each error status its own schema, not one shared shape', async () => {
+    const doc = await (
+      await get('/openapi.json')
+    ).json<{
+      paths: Record<string, Record<string, { responses: Record<string, ResponseObject> }>>
+    }>()
+    const responses = doc.paths['/v1/roll']!.get!.responses
+    const ref = (status: string) => responses[status]!.content['application/json'].schema.$ref
+
+    expect(new Set(['400', '413', '429', '500'].map(ref)).size).toBe(4)
+  })
+
+  /**
+   * The reference once showed an identical body for every error status, because each one
+   * pointed at the same schema with no example. A 400 carries any of three codes, so its
+   * example is only illustrative; 413 has exactly one, and must match byte for byte.
+   */
+  it('documents the 413 body it actually returns', async () => {
+    const doc = await (
+      await get('/openapi.json')
+    ).json<{
+      components: { schemas: Record<string, { examples?: { error: ErrorBody }[] }> }
+      paths: Record<string, Record<string, { responses: Record<string, ResponseObject> }>>
+    }>()
+
+    const response = await post(
+      '/v1/roll',
+      JSON.stringify({ formula: '1d20', pad: 'x'.repeat(LIMITS.maxRequestBytes) }),
+    )
+    expect(response.status).toBe(413)
+    const actual = (await response.json<{ error: ErrorBody }>()).error
+
+    const name =
+      doc.paths['/v1/roll']!.post!.responses['413']!.content['application/json'].schema.$ref.split(
+        '/',
+      ).pop()!
+
+    expect(doc.components.schemas[name]!.examples![0]!.error).toEqual(actual)
+  })
+
+  it('only documents codes each status can actually carry', async () => {
+    const doc = await (
+      await get('/openapi.json')
+    ).json<{
+      components: {
+        schemas: Record<
+          string,
+          { properties?: { error: { properties: { code: { enum: string[] } } } } } & {
+            examples?: { error: ErrorBody }[]
+          }
+        >
+      }
+    }>()
+
+    for (const [name, schema] of Object.entries(doc.components.schemas)) {
+      if (!name.endsWith('Error')) continue
+      const codes = schema.properties!.error.properties.code.enum
+      expect(codes.length).toBeGreaterThan(0)
+      expect(codes).toContain(schema.examples![0]!.error.code)
+    }
+  })
 })
+
+interface ErrorBody {
+  code: string
+  message: string
+}
+
+interface ResponseObject {
+  content: { 'application/json': { schema: { $ref: string } } }
+}

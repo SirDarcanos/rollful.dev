@@ -3,10 +3,13 @@
 
 import { createRoute, type OpenAPIHono } from '@hono/zod-openapi'
 import {
+  BadRequestError,
   BatchRollRequest,
   BatchRollResponse,
-  ErrorResponse,
   HealthResponse,
+  InternalError,
+  PayloadTooLargeError,
+  RateLimitedError,
   RollQuery,
   RollRequest,
   RollResponse,
@@ -21,10 +24,10 @@ const json = <T>(schema: T, description: string) => ({
 })
 
 const errors = {
-  400: json(ErrorResponse, 'The request or the formula was rejected.'),
-  413: json(ErrorResponse, 'The request body was too large.'),
-  429: json(ErrorResponse, 'Rate limit exceeded.'),
-  500: json(ErrorResponse, 'The random source failed.'),
+  400: json(BadRequestError, 'The request or the formula was rejected.'),
+  413: json(PayloadTooLargeError, 'The request body was larger than the limit.'),
+  429: json(RateLimitedError, 'Too many requests from this address.'),
+  500: json(InternalError, 'The random source failed.'),
 }
 
 const rollFromQuery = createRoute({

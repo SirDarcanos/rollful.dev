@@ -9,7 +9,8 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import { bodyLimit } from 'hono/body-limit'
 import { cors } from 'hono/cors'
-import { LIMITS } from '@rollful/schema'
+import { ERROR_MESSAGES, LIMITS } from '@rollful/schema'
+import { API_DESCRIPTION } from './description.ts'
 import { ApiError, asApiError } from './errors.ts'
 import { registerRollRoutes } from './routes/roll.ts'
 
@@ -42,11 +43,7 @@ app.use(
   bodyLimit({
     maxSize: LIMITS.maxRequestBytes,
     onError: () => {
-      throw new ApiError(
-        413,
-        'payload_too_large',
-        `A request body may be at most ${LIMITS.maxRequestBytes} bytes`,
-      )
+      throw new ApiError(413, 'payload_too_large', ERROR_MESSAGES.payloadTooLarge)
     },
   }),
 )
@@ -55,30 +52,29 @@ app.use('/v1/*', async (c, next) => {
   const key = c.req.header('cf-connecting-ip') ?? 'anonymous'
   const { success } = await c.env.ROLL_RATE_LIMITER.limit({ key })
   if (!success) {
-    throw new ApiError(
-      429,
-      'rate_limited',
-      `At most ${LIMITS.rateLimit.requests} requests every ${LIMITS.rateLimit.windowSeconds} seconds`,
-    )
+    throw new ApiError(429, 'rate_limited', ERROR_MESSAGES.rateLimited)
   }
   await next()
 })
 
 registerRollRoutes(app)
 
-app.doc31('/openapi.json', {
+// The document describes the production API wherever it is served from, including a local
+// Worker. A client pointed at a different origin overrides this; deriving it from the
+// request does not work, because `wrangler dev` reports the configured Custom Domain host.
+app.doc31('/openapi.json', (c) => ({
   openapi: '3.1.0',
   info: {
     title: 'Rollful',
-    version: '1.0.0',
-    description: 'A hosted dice-rolling API powered by OpenDice.',
+    version: c.env.API_VERSION,
+    description: API_DESCRIPTION,
     license: { name: 'MIT', url: 'https://opensource.org/licenses/MIT' },
   },
   servers: [{ url: 'https://api.rollful.dev', description: 'Production' }],
-})
+}))
 
 app.notFound(() => {
-  throw new ApiError(404, 'not_found', 'No such endpoint')
+  throw new ApiError(404, 'not_found', ERROR_MESSAGES.notFound)
 })
 
 app.onError((error, c) => {

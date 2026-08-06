@@ -23,3 +23,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   shared with the site.
 - Tests running inside workerd, covering the grammar, each guard, CORS, rate limiting and
   the OpenAPI document.
+- `@rollful/site`, an Astro site, with the interactive API reference at `/reference`.
+  Scalar is bundled rather than loaded from a CDN, and the API it talks to is set by
+  `PUBLIC_ROLLFUL_API` so the reference can be pointed at a local Worker.
+- A quick start in the OpenAPI document's description, covering the npm package, `fetch`
+  and a non-JavaScript client.
+- A schema per error status, each listing only the codes that status can carry and quoting
+  the message the API really returns. The messages live in `@rollful/schema` so the Worker
+  and the document cannot disagree, and a test pins the two together.

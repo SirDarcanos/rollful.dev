@@ -113,6 +113,68 @@ export const ErrorResponse = z
   })
   .meta({ id: 'ErrorResponse' })
 
+/**
+ * The messages the API returns for the errors it raises itself. The Worker throws these and
+ * the OpenAPI examples below quote them, so the reference cannot document a message the API
+ * does not send. Errors raised inside OpenDice carry its own message instead.
+ */
+export const ERROR_MESSAGES = {
+  payloadTooLarge: `A request body may be at most ${LIMITS.maxRequestBytes} bytes`,
+  rateLimited: `At most ${LIMITS.rateLimit.requests} requests every ${LIMITS.rateLimit.windowSeconds} seconds`,
+  tooManyDice: `A request may roll at most ${LIMITS.maxTotalDice} dice in total, but this one asks for more`,
+  notFound: 'No such endpoint',
+  brokenRandomSource: 'The random source failed. Try again.',
+} as const
+
+/**
+ * One schema per status, rather than the general shape everywhere. A 429 cannot carry
+ * `invalid_formula`, and a reader of the reference should be able to see that. Without an
+ * example every status renders an identical generated body.
+ */
+function errorFor(
+  id: string,
+  codes: readonly [ErrorCode, ...ErrorCode[]],
+  example: { code: ErrorCode; message: string },
+) {
+  return z
+    .object({
+      error: z.object({
+        code: z.enum(codes),
+        message: z.string(),
+      }),
+    })
+    .meta({ id, examples: [{ error: example }] })
+}
+
+export const BadRequestError = errorFor(
+  'BadRequestError',
+  ['invalid_request', 'invalid_formula', 'too_many_dice'],
+  {
+    code: 'invalid_formula',
+    message: 'A roll may use at most 1000 dice, but this one asks for 999999',
+  },
+)
+
+export const PayloadTooLargeError = errorFor('PayloadTooLargeError', ['payload_too_large'], {
+  code: 'payload_too_large',
+  message: ERROR_MESSAGES.payloadTooLarge,
+})
+
+export const RateLimitedError = errorFor('RateLimitedError', ['rate_limited'], {
+  code: 'rate_limited',
+  message: ERROR_MESSAGES.rateLimited,
+})
+
+export const NotFoundError = errorFor('NotFoundError', ['not_found'], {
+  code: 'not_found',
+  message: ERROR_MESSAGES.notFound,
+})
+
+export const InternalError = errorFor('InternalError', ['internal_error'], {
+  code: 'internal_error',
+  message: ERROR_MESSAGES.brokenRandomSource,
+})
+
 export const HealthResponse = z
   .object({
     status: z.literal('ok'),

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2026 Nicola Mustone
 
-import type { ErrorCode } from '@rollful/schema'
+import { ERROR_MESSAGES, type ErrorCode } from '@rollful/schema'
 
 export class ApiError extends Error {
   constructor(
@@ -24,7 +24,7 @@ export function asApiError(error: unknown): ApiError {
   if (error instanceof ApiError) return error
   const message = error instanceof Error ? error.message : String(error)
   if (BROKEN_RANDOM_SOURCE.test(message)) {
-    return new ApiError(500, 'internal_error', 'The random source failed. Try again.')
+    return new ApiError(500, 'internal_error', ERROR_MESSAGES.brokenRandomSource)
   }
   return new ApiError(400, 'invalid_formula', message)
 }

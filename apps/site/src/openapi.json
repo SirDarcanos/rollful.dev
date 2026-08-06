@@ -1,0 +1,636 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Rollful",
+    "version": "0.1.0",
+    "description": "A hosted dice-rolling API powered by [OpenDice](https://www.npmjs.com/package/opendice).\n\nRollful parses a dice formula, rolls each die through a CSPRNG, and returns every die it\nrolled rather than just the answer. It is not tied to any game system: it knows what\n`4d6kh3` means, and nothing about what you use it for.\n\n## In JavaScript\n\nIf you are already in JavaScript or TypeScript, you may not need this API at all. The\npackage rolls locally, with no network call:\n\n```shell\nnpm install opendice\n```\n\n```js\nimport { roll } from 'opendice'\n\nconst result = roll('4d6kh3')\nconsole.log(result.total, result.dice[0].results)\n```\n\nReach for the API when rolling should not happen on the client: a shared result several\npeople must agree on, a server-authoritative roll, or a language that has no OpenDice\nbuild.\n\n```js\nconst response = await fetch('https://api.rollful.dev/v1/roll?formula=4d6kh3')\nconst result = await response.json()\n\nconsole.log(result.total)             // 14\nconsole.log(result.dice[0].results)   // [5, 4, 5, 3] — every die, including dropped ones\nconsole.log(result.dice[0].keptFlags) // [true, true, true, false] — which ones counted\n```\n\n## In any other language\n\nThe API is plain JSON over HTTP with no authentication, so every language works. Pick one\nfrom the client libraries panel beside each endpoint for a ready-made snippet.\n\n## Showing the working\n\nEvery response reports each die group separately. `results` holds every die rolled,\n`kept` holds the ones that counted, and `keptFlags` lines up with `results` so an\ninterface can dim a dropped die rather than hide it. `naturalHigh` and `naturalLow` are\nset only when a group kept exactly one die, because a top face among several is not a\ncritical on its own.\n\nWith penetrating dice (`1d6!p`) a penetrated 1 is recorded as `0`, which is the only\ncase `results` holds a number below 1. `kept` still sums to `total`.\n\n## Limits\n\nOpenDice caps a roll at 1000 dice across all terms, 100 explosions per die, and a total\nthat stays an exact whole number. On top of that a request may carry a formula of 200\ncharacters, 20 bonuses, and 20 rolls per batch, with the 1000-dice cap counted across the\nwhole request. Requests are limited to 60 every 60 seconds per address, applied per\nCloudflare location rather than globally.",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.rollful.dev",
+      "description": "Production"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Rolling",
+      "description": "Rolling dice. One roll from a query string for links and `curl`, the same roll from a body when it carries bonuses or tags, and a batch when several rolls should happen together. Every response reports each die, not only the total."
+    },
+    {
+      "name": "Service",
+      "description": "Whether the API is up. Rolls nothing, and is not rate limited differently."
+    }
+  ],
+  "components": {
+    "schemas": {
+      "RollResponse": {
+        "type": "object",
+        "properties": {
+          "formula": {
+            "type": "string"
+          },
+          "dice": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DieGroup"
+            }
+          },
+          "modifier": {
+            "type": "integer",
+            "description": "Sum of the flat modifiers. Dice are not counted."
+          },
+          "modifiers": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Each flat modifier in order, so `+1 -6` can be shown rather than -5."
+          },
+          "total": {
+            "type": "integer"
+          },
+          "advantageState": {
+            "$ref": "#/components/schemas/AdvantageState"
+          },
+          "tag": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "formula",
+          "dice",
+          "modifier",
+          "modifiers",
+          "total",
+          "advantageState"
+        ]
+      },
+      "DieGroup": {
+        "type": "object",
+        "properties": {
+          "sides": {
+            "type": "integer"
+          },
+          "sign": {
+            "anyOf": [
+              {
+                "type": "number",
+                "enum": [
+                  1
+                ]
+              },
+              {
+                "type": "number",
+                "enum": [
+                  -1
+                ]
+              }
+            ]
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Every die rolled, including dropped ones. A penetrated 1 is recorded as 0, the one case this holds a number below 1."
+          },
+          "kept": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "The dice that counted towards the total."
+          },
+          "keptFlags": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            },
+            "description": "Aligned to `results`: whether each die was kept."
+          },
+          "multiplier": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer",
+            "description": "This group's signed contribution to the total."
+          },
+          "naturalHigh": {
+            "type": "boolean"
+          },
+          "naturalLow": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sides",
+          "sign",
+          "results",
+          "kept",
+          "keptFlags",
+          "multiplier",
+          "total",
+          "naturalHigh",
+          "naturalLow"
+        ]
+      },
+      "AdvantageState": {
+        "type": "string",
+        "enum": [
+          "normal",
+          "advantage",
+          "disadvantage"
+        ],
+        "description": "Applies to the first plain d20 term. Net advantage and disadvantage yourself."
+      },
+      "BadRequestError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "invalid_request",
+                  "invalid_formula",
+                  "too_many_dice"
+                ]
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "examples": [
+          {
+            "error": {
+              "code": "invalid_formula",
+              "message": "A roll may use at most 1000 dice, but this one asks for 999999"
+            }
+          }
+        ]
+      },
+      "PayloadTooLargeError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "payload_too_large"
+                ]
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "examples": [
+          {
+            "error": {
+              "code": "payload_too_large",
+              "message": "A request body may be at most 8192 bytes"
+            }
+          }
+        ]
+      },
+      "RateLimitedError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "rate_limited"
+                ]
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "examples": [
+          {
+            "error": {
+              "code": "rate_limited",
+              "message": "At most 60 requests every 60 seconds"
+            }
+          }
+        ]
+      },
+      "InternalError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "internal_error"
+                ]
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "examples": [
+          {
+            "error": {
+              "code": "internal_error",
+              "message": "The random source failed. Try again."
+            }
+          }
+        ]
+      },
+      "RollRequest": {
+        "type": "object",
+        "properties": {
+          "formula": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "A dice formula, such as `2d6+3` or `4d6kh3`.",
+            "examples": [
+              "2d6+3"
+            ]
+          },
+          "advantage": {
+            "$ref": "#/components/schemas/AdvantageState"
+          },
+          "bonuses": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                }
+              ],
+              "description": "A whole number, or a formula fragment such as `1d4`."
+            },
+            "maxItems": 20
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^[a-z]+$"
+            },
+            "maxItems": 20,
+            "description": "Trailing words to accept as a tag. A trailing word not listed here is a parse error."
+          }
+        },
+        "required": [
+          "formula"
+        ]
+      },
+      "BatchRollResponse": {
+        "type": "object",
+        "properties": {
+          "rolls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RollResponse"
+            }
+          }
+        },
+        "required": [
+          "rolls"
+        ]
+      },
+      "BatchRollRequest": {
+        "type": "object",
+        "properties": {
+          "rolls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RollRequest"
+            },
+            "minItems": 1,
+            "maxItems": 20
+          }
+        },
+        "required": [
+          "rolls"
+        ]
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok"
+            ]
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "version"
+        ]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/v1/roll": {
+      "get": {
+        "tags": [
+          "Rolling"
+        ],
+        "summary": "Roll a formula from a query string",
+        "description": "The link- and curl-friendly form. Use POST for bonuses and tags.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "A dice formula, such as `2d6+3` or `4d6kh3`.",
+              "examples": [
+                "2d6+3"
+              ]
+            },
+            "required": true,
+            "description": "A dice formula, such as `2d6+3` or `4d6kh3`.",
+            "name": "formula",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "$ref": "#/components/schemas/AdvantageState"
+            },
+            "required": false,
+            "description": "Applies to the first plain d20 term. Net advantage and disadvantage yourself.",
+            "name": "advantage",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The roll, with every die it rolled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RollResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request or the formula was rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The request body was larger than the limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayloadTooLargeError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests from this address.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RateLimitedError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The random source failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Rolling"
+        ],
+        "summary": "Roll a formula",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RollRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The roll, with every die it rolled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RollResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request or the formula was rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The request body was larger than the limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayloadTooLargeError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests from this address.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RateLimitedError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The random source failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/roll/batch": {
+      "post": {
+        "tags": [
+          "Rolling"
+        ],
+        "summary": "Roll several formulas in one request",
+        "description": "Dice are counted across every roll in the request, not per roll.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchRollRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "One result per requested roll.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchRollResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request or the formula was rejected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The request body was larger than the limit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayloadTooLargeError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests from this address.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RateLimitedError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The random source failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/health": {
+      "get": {
+        "tags": [
+          "Service"
+        ],
+        "summary": "Liveness check",
+        "responses": {
+          "200": {
+            "description": "The service is running.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {}
+}

@@ -5,6 +5,9 @@
   // No "main": the site is static, so the Worker serves assets and runs no code of its own.
   "assets": {
     "directory": "./dist",
+    // Without this an address the site does not have is answered with an empty 404, since
+    // assets are served with no page to fall back to. Astro builds 404.html; this serves it.
+    "not_found_handling": "404-page",
   },
   "routes": [
     {

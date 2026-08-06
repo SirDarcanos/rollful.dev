@@ -1,0 +1,76 @@
+---
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2026 Nicola Mustone
+import Base from '../layouts/Base.astro'
+import Logo from '../components/Logo.astro'
+
+/**
+ * Answers for every address the site does not have, including under /docs: Starlight's own
+ * 404 route is disabled, so the documentation falls through to this rather than keeping a
+ * second one of its own.
+ */
+---
+
+<Base
+  title="Not found — Rollful"
+  description="No page at this address."
+  noindex
+>
+  <section
+    class="relative flex min-h-[70vh] items-center overflow-hidden border-b border-zinc-200 bg-zinc-50 dark:border-white/10 dark:bg-ink"
+  >
+    <!-- The same wash and oversized die as the home page, so a wrong address still looks
+         like the site it is on. -->
+    <div
+      aria-hidden="true"
+      class="pointer-events-none absolute -top-48 -right-24 h-160 w-160 rounded-full bg-teal/10 blur-3xl dark:bg-aqua/5"
+    >
+    </div>
+    <Logo
+      class="pointer-events-none absolute -right-24 -bottom-32 h-104 w-104 text-teal/10 lg:-right-28 lg:-bottom-40 lg:h-168 lg:w-2xl dark:text-aqua/15"
+      strokeWidth={0.7}
+    />
+
+    <div class="relative mx-auto w-full max-w-6xl px-6 py-24">
+      <p class="font-mono text-sm text-zinc-500">
+        d20 [<span class="font-semibold text-teal dark:text-aqua">1</span>]
+      </p>
+
+      <h1 class="mt-6 text-4xl font-bold tracking-tight text-balance sm:text-5xl">
+        Natural 1.
+      </h1>
+
+      <p class="mt-6 max-w-lg text-lg text-pretty text-zinc-600 dark:text-zinc-400">
+        There is nothing at <code
+          id="path"
+          class="font-mono text-base text-ink dark:text-zinc-100">this address</code
+        >. The link may be wrong, or the page may have moved.
+      </p>
+
+      <div class="mt-10 flex flex-wrap gap-3">
+        <a
+          href="/"
+          class="border border-teal bg-teal px-6 py-3 text-sm font-medium text-white hover:bg-teal/90 dark:bg-aqua dark:text-ink dark:hover:bg-aqua/90"
+          >Home →</a
+        >
+        <a
+          href="/docs/"
+          class="border border-zinc-300 bg-white px-6 py-3 text-sm font-medium hover:bg-zinc-50 dark:border-white/15 dark:bg-transparent dark:hover:bg-ink-soft"
+          >Getting started →</a
+        >
+        <a
+          href="/docs/api/"
+          class="border border-zinc-300 bg-white px-6 py-3 text-sm font-medium hover:bg-zinc-50 dark:border-white/15 dark:bg-transparent dark:hover:bg-ink-soft"
+          >REST API →</a
+        >
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  // The address is only known in the browser, since one page answers for all of them. Set as
+  // text, never as markup: it is whatever was typed into the bar.
+  const path = document.getElementById('path')
+  if (path) path.textContent = location.pathname
+</script>

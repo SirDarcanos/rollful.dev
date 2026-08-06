@@ -6,19 +6,20 @@
   "description": "The Rollful site: marketing, documentation and the API reference.",
   "license": "MIT",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "dev": "node ../api/scripts/write-openapi.mjs && astro dev",
+    "build": "node ../api/scripts/write-openapi.mjs && astro build",
     "preview": "astro preview",
     "deploy": "astro build && node scripts/check-build.mjs && wrangler deploy",
     "typecheck": "astro check"
   },
   "dependencies": {
+    "@astrojs/mdx": "^7.0.5",
     "@astrojs/sitemap": "^3.7.3",
+    "@astrojs/starlight": "^0.41.7",
     "@rollful/schema": "*",
-    "@scalar/api-reference": "^1.64.0",
-    "@scalar/client-side-rendering": "^0.3.5",
     "astro": "^7.1.6",
-    "astro-seo": "^1.1.0"
+    "astro-seo": "^1.1.0",
+    "starlight-openapi": "^0.26.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",

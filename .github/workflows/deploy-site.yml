@@ -63,8 +63,8 @@ jobs:
             sleep 6
             page="$(curl -sSL --max-time 10 -H "X-Rollful-Deploy-Check: $DEPLOY_CHECK_TOKEN" \
               'https://rollful.dev/reference/' 2>&1 || true)"
-            if printf '%s' "$page" | grep -q 'data-spec="https://api.rollful.dev/openapi.json"'; then
-              echo "Reference page served on attempt $attempt, pointing at the production API"
+            if printf '%s' "$page" | grep -q 'api.rollful.dev'; then
+              echo "Reference page served on attempt $attempt, describing the production API"
               exit 0
             fi
             if printf '%s' "$page" | grep -qiE 'Just a moment|challenge-platform|cf-browser-verification'; then
@@ -78,5 +78,5 @@ jobs:
             exit 0
           fi
 
-          echo "::error::The deployed site did not serve /reference/ pointing at the production API"
+          echo "::error::The deployed site did not serve /reference/ describing the production API"
           exit 1

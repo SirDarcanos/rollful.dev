@@ -44,6 +44,20 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Fathom analytics on the site, loaded only when the page is served from a real host, with
   events for rolling, presets, copying a snippet and opening the reference.
 
+- Documentation at `rollful.dev/docs`, built with Starlight: getting started, the formula
+  grammar, reading a result, limits and errors. The limits page reads its numbers from
+  `@rollful/schema`, so it cannot drift from the guard.
+
+### Changed
+
+- The API reference is generated into Starlight from the OpenAPI document rather than
+  mounted as a separate Scalar application, so the documentation and the reference share
+  one sidebar, one search and one theme. It is read-only in exchange: the reference offers
+  copyable snippets in many languages where Scalar could send the request for you.
+- The OpenAPI document is written to a file by the Worker itself, and the reference builds
+  from that. Pointing at the deployed document would have documented the previous version
+  until the API caught up, since both deploy from the same commit.
+
 ### Fixed
 
 - The site deploy's health check followed no redirects, so it requested `/reference`, was

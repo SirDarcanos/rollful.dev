@@ -123,6 +123,26 @@ Cloudflare creates the DNS record and issues the certificate on the first deploy
 is no DNS record to add by hand and none to keep in step afterwards. Do not edit those
 records in the dashboard. The `rollful.dev` zone must already exist in the account.
 
+### Letting CI check its own deploy
+
+Both workflows fetch the deployed URL afterwards to prove it answers. Cloudflare's bot
+protection replies to GitHub's runners with a managed challenge, so that fetch gets an
+interstitial rather than the site. The workflows treat a challenge as a warning rather than
+a failure, because a challenge says nothing about whether the deploy worked — which leaves
+the deploy unverified.
+
+To get a real check back, add a WAF custom rule on the zone that skips bot protection for
+requests carrying a header only the workflows send:
+
+|            |                                                                   |
+| ---------- | ----------------------------------------------------------------- |
+| Expression | `http.request.headers["x-rollful-deploy-check"][0] eq "<secret>"` |
+| Action     | Skip → Bot Fight Mode, and any other rule that would challenge    |
+
+Then store the same value as the `DEPLOY_CHECK_TOKEN` repository secret. Use a secret rather
+than matching a user agent: a rule anyone can satisfy by setting a header they can guess is
+a hole in the bot protection, not an exception for CI.
+
 ## Changes
 
 Add an entry to [CHANGELOG.md](CHANGELOG.md) under `Unreleased` for anything that changes

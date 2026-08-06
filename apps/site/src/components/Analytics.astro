@@ -1,23 +1,7 @@
 ---
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2026 Nicola Mustone
-
-/**
- * Fathom, loaded only when the page is served from a real host. Fathom has no attribute for
- * excluding domains — its guidance is to filter in the dashboard — so the check happens
- * here. Testing the hostname rather than the build mode keeps `astro dev` and a local
- * `astro preview` of a production build out of the numbers alike.
- *
- * Fathom sets no cookies and collects no personal data, so this needs no consent banner.
- */
+import { FATHOM_SNIPPET } from '../lib/fathom.ts'
 ---
 
-<script is:inline>
-  if (!['localhost', '127.0.0.1', '[::1]', '::1'].includes(window.location.hostname)) {
-    const fathom = document.createElement('script')
-    fathom.src = 'https://cdn.usefathom.com/script.js'
-    fathom.dataset.site = 'POWIZBZB'
-    fathom.defer = true
-    document.head.append(fathom)
-  }
-</script>
+<script is:inline set:html={FATHOM_SNIPPET} />

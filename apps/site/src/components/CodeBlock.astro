@@ -2,12 +2,21 @@
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2026 Nicola Mustone
 import { Code } from 'astro:components'
-import { SHIKI_THEMES } from '../shiki-theme.ts'
+import { SHIKI_THEMES } from '../lib/code-themes.ts'
 
+/**
+ * A code block framed the way Expressive Code frames them in the documentation: a shell
+ * command gets the three dots of a terminal, anything else gets a tab with its name, and the
+ * copy button waits in the corner until the block is hovered or something in it is focused.
+ *
+ * Expressive Code is not used directly. Its `<Code>` reaches the marketing page only through
+ * Starlight's, which brings Starlight's stylesheet with it, and that reset outranks Tailwind's
+ * layered utilities and flattens the page.
+ */
 interface Props {
   code: string
   lang: 'bash' | 'js' | 'json'
-  /** Overrides the label taken from `lang`. */
+  /** The name in the tab. Ignored for shell, which shows the terminal dots instead. */
   label?: string
   class?: string
 }
@@ -20,22 +29,38 @@ const LABELS: Record<Props['lang'], string> = {
 
 const { code, lang, label, class: className = '' } = Astro.props
 const heading = label ?? LABELS[lang]
+const isTerminal = lang === 'bash'
 ---
 
 <div
   class:list={[
-    'code-block overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 dark:border-white/10 dark:bg-ink-soft',
+    'code-block group relative overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 dark:border-white/10 dark:bg-ink-soft',
     className,
   ]}
   data-code={code}
 >
   <div
-    class="flex items-center justify-between gap-4 border-b border-zinc-200 px-4 py-2 dark:border-white/10"
+    class="flex items-center gap-2 border-b border-zinc-200 px-4 py-2.5 dark:border-white/10"
   >
-    <span class="text-[11px] font-semibold tracking-widest text-zinc-500 uppercase">{heading}</span>
+    {
+      isTerminal ? (
+        <span class="flex gap-1.5" aria-hidden="true">
+          <span class="h-2.5 w-2.5 rounded-full bg-zinc-300 dark:bg-white/15" />
+          <span class="h-2.5 w-2.5 rounded-full bg-zinc-300 dark:bg-white/15" />
+          <span class="h-2.5 w-2.5 rounded-full bg-zinc-300 dark:bg-white/15" />
+        </span>
+      ) : (
+        <span class="text-xs text-zinc-500">{heading}</span>
+      )
+    }
+  </div>
+
+  <div class="relative overflow-x-auto p-4 text-xs">
+    <!-- Hidden until wanted, but never to a keyboard: opacity alone would leave a button
+         that can be tabbed to and not seen. -->
     <button
       type="button"
-      class="copy -mr-1 shrink-0 rounded-md p-1.5 text-zinc-500 hover:text-ink dark:hover:text-aqua"
+      class="copy absolute top-2 right-2 rounded-md border border-zinc-200 bg-zinc-50 p-1.5 text-zinc-500 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 hover:text-ink dark:border-white/10 dark:bg-ink-soft dark:hover:text-aqua"
       aria-label={`Copy the ${heading} snippet`}
     >
       <svg
@@ -64,8 +89,7 @@ const heading = label ?? LABELS[lang]
         <path d="m20 6-11 11-5-5"></path>
       </svg>
     </button>
-  </div>
-  <div class="overflow-x-auto p-4 text-xs">
+
     <Code code={code} lang={lang} themes={SHIKI_THEMES} defaultColor={false} />
   </div>
 </div>

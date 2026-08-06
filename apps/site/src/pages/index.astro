@@ -30,7 +30,7 @@ const PRESETS = ['4d6kh3', '2d20adv', '2d6+3', '1d6!p', '1d8+1d4']
 
 const FEATURE_COPY = [
   {
-    title: 'It shows the working',
+    title: 'It shows its work',
     body: '`results` holds every die rolled and `keptFlags` says which ones counted, so an interface can dim the die advantage dropped rather than hide it.',
   },
   {
@@ -84,8 +84,8 @@ const FEATURES = FEATURE_COPY.map((feature) => ({
     >
     </div>
     <Logo
-      class="pointer-events-none absolute -right-24 -bottom-32 h-104 w-104 text-teal/10 lg:-right-28 lg:-bottom-40 lg:h-168 lg:w-2xl dark:text-aqua/10"
-      strokeWidth={0.5}
+      class="pointer-events-none absolute -right-24 -bottom-32 h-104 w-104 text-teal/10 lg:-right-28 lg:-bottom-40 lg:h-168 lg:w-2xl dark:text-aqua/15"
+      strokeWidth={0.7}
     />
 
     <div class="relative mx-auto max-w-6xl px-6 py-20 sm:py-24">
@@ -102,7 +102,7 @@ const FEATURES = FEATURE_COPY.map((feature) => ({
           </h1>
 
           <p class="mt-6 max-w-lg text-lg text-pretty text-zinc-600 dark:text-zinc-400">
-            Every die drawn from a <span class="underline underline-offset-3 decoration-dotted" title="Cryptographically Secure Pseudo-Random Number Generator">CSPRNG</span>, and a transparent report of how they were processed — not just the total. Available as an <code class="rounded bg-zinc-100 px-1 py-0.5 text-xs text-teal dark:bg-white/5 dark:text-aqua">npm</code> package, or via a hosted API for everything that is not JavaScript.
+            Every die drawn from a <span class="underline underline-offset-3 decoration-dotted" title="Cryptographically Secure Pseudo-Random Number Generator">CSPRNG</span>, and a transparent report of how they were processed — not just the total. Available as an npm package, or via a hosted API for everything that is not JavaScript.
           </p>
 
           <CodeBlock code="npm i opendice" lang="bash" class="mt-10 max-w-md" />

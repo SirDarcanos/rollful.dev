@@ -10,8 +10,10 @@ import starlightOpenAPI, { openAPISidebarGroups } from 'starlight-openapi'
 import { FATHOM_SNIPPET } from './src/lib/fathom.ts'
 import { hideEndpointsOverview } from './src/starlight/endpoints-overview.ts'
 
+const SITE = 'https://rollful.dev'
+
 export default defineConfig({
-  site: 'https://rollful.dev',
+  site: SITE,
   integrations: [
     starlight({
       title: 'Rollful',
@@ -20,8 +22,24 @@ export default defineConfig({
       // and the reference keep their own routes and their own look.
       disable404Route: true,
       customCss: ['./src/styles/starlight.css'],
-      // Starlight renders its own document, so the site layout's analytics never reach it.
-      head: [{ tag: 'script', content: FATHOM_SNIPPET }],
+      // Starlight renders its own document, so what the site layout puts in the head never
+      // reaches it: the analytics, and the card a link to a documentation page unfurls with.
+      // Starlight writes the rest of the card itself, including a `summary_large_image` that
+      // shows as a plain link until there is an image to go with it.
+      head: [
+        { tag: 'script', content: FATHOM_SNIPPET },
+        { tag: 'meta', attrs: { property: 'og:image', content: `${SITE}/og.png` } },
+        { tag: 'meta', attrs: { property: 'og:image:width', content: '1200' } },
+        { tag: 'meta', attrs: { property: 'og:image:height', content: '630' } },
+        {
+          tag: 'meta',
+          attrs: {
+            property: 'og:image:alt',
+            content: 'Rollful — roll dice anywhere, show the work.',
+          },
+        },
+        { tag: 'meta', attrs: { name: 'twitter:image', content: `${SITE}/og.png` } },
+      ],
       // No `expressiveCode` here: Starlight's own Night Owl is the site's code theme, and
       // the marketing page names the same two Shiki themes. See src/lib/code-themes.ts.
       social: [

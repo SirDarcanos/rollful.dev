@@ -85,9 +85,14 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   applied to the marketing page — `starlight-openapi` replaces whatever `expressiveCode` is
   configured, so the documentation rendered in Night Owl regardless, and the same snippet
   changed appearance between the two.
-- The marketing page frames code the way the documentation does: a shell command shows the
-  three dots of a terminal, anything else a tab with its name, and the copy button waits in
-  the corner until the block is hovered or something in it is focused.
+- The marketing page's code blocks are drawn by Expressive Code, which draws the
+  documentation's: a shell command shows the three dots of a terminal, anything else a tab
+  with its name, and the copy button waits in the corner until the block is hovered. Its
+  component is imported from `astro-expressive-code` rather than from Starlight, which
+  re-exports it — Starlight's barrel brings eleven other components and its stylesheet with
+  them, and that reset outranks Tailwind's layered utilities and flattens the page.
+- The roller on the home page is framed like the code blocks beside it, from the same
+  variables, rather than as a rounded card of its own.
 - No "Overview" links in the generated endpoint groups. The one at the top pointed at a page
   the documentation already had, since "Making a call" opens the REST API, and the one in each
   tag was that tag's description above a list of the endpoints beside it. What is left in the

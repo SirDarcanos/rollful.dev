@@ -1,22 +1,21 @@
 ---
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2026 Nicola Mustone
-import { Code } from 'astro:components'
-import { SHIKI_THEMES } from '../lib/code-themes.ts'
+import { Code } from 'astro-expressive-code/components'
 
 /**
- * A code block framed the way Expressive Code frames them in the documentation: a shell
- * command gets the three dots of a terminal, anything else gets a tab with its name, and the
- * copy button waits in the corner until the block is hovered or something in it is focused.
+ * A code block on the marketing page, rendered by the same Expressive Code that renders the
+ * documentation. A shell command gets the three dots of a terminal, anything else a tab with
+ * its name, and the copy button waits in the corner until the block is hovered.
  *
- * Expressive Code is not used directly. Its `<Code>` reaches the marketing page only through
- * Starlight's, which brings Starlight's stylesheet with it, and that reset outranks Tailwind's
- * layered utilities and flattens the page.
+ * The component comes from `astro-expressive-code` rather than from Starlight, which
+ * re-exports it. Starlight's barrel pulls in eleven other components and their stylesheet
+ * with them, and that reset outranks Tailwind's layered utilities and flattens the page.
  */
 interface Props {
   code: string
   lang: 'bash' | 'js' | 'json'
-  /** The name in the tab. Ignored for shell, which shows the terminal dots instead. */
+  /** The name in the tab. Shell shows the terminal dots instead and ignores it. */
   label?: string
   class?: string
 }
@@ -28,77 +27,20 @@ const LABELS: Record<Props['lang'], string> = {
 }
 
 const { code, lang, label, class: className = '' } = Astro.props
-const heading = label ?? LABELS[lang]
-const isTerminal = lang === 'bash'
+const title = lang === 'bash' ? undefined : (label ?? LABELS[lang])
 ---
 
-<div
-  class:list={[
-    'code-block group relative overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 dark:border-white/10 dark:bg-ink-soft',
-    className,
-  ]}
-  data-code={code}
->
-  <div
-    class="flex items-center gap-2 border-b border-zinc-200 px-4 py-2.5 dark:border-white/10"
-  >
-    {
-      isTerminal ? (
-        <span class="flex gap-1.5" aria-hidden="true">
-          <span class="h-2.5 w-2.5 rounded-full bg-zinc-300 dark:bg-white/15" />
-          <span class="h-2.5 w-2.5 rounded-full bg-zinc-300 dark:bg-white/15" />
-          <span class="h-2.5 w-2.5 rounded-full bg-zinc-300 dark:bg-white/15" />
-        </span>
-      ) : (
-        <span class="text-xs text-zinc-500">{heading}</span>
-      )
-    }
-  </div>
-
-  <div class="relative overflow-x-auto p-4 text-xs">
-    <!-- Hidden until wanted, but never to a keyboard: opacity alone would leave a button
-         that can be tabbed to and not seen. -->
-    <button
-      type="button"
-      class="copy absolute top-2 right-2 rounded-md border border-zinc-200 bg-zinc-50 p-1.5 text-zinc-500 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 hover:text-ink dark:border-white/10 dark:bg-ink-soft dark:hover:text-aqua"
-      aria-label={`Copy the ${heading} snippet`}
-    >
-      <svg
-        class="copy-idle h-4 w-4"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <rect x="8" y="8" width="14" height="14" rx="2"></rect>
-        <path d="M4 16a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2"></path>
-      </svg>
-      <svg
-        class="copy-done hidden h-4 w-4"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="m20 6-11 11-5-5"></path>
-      </svg>
-    </button>
-
-    <Code code={code} lang={lang} themes={SHIKI_THEMES} defaultColor={false} />
-  </div>
+<div class:list={['code-block', className]}>
+  <Code code={code} lang={lang} title={title} />
 </div>
 
 <script>
-  import { wireCopy } from '../lib/copy.ts'
+  import { track } from '../lib/analytics.ts'
 
-  for (const button of document.querySelectorAll<HTMLButtonElement>('.code-block .copy')) {
-    const block = button.closest('.code-block') as HTMLElement
-    wireCopy(button, () => block.dataset.code!)
-  }
+  // Expressive Code renders its own copy button, so the event is wired to that rather than
+  // to one of ours.
+  document.addEventListener('click', (event) => {
+    const target = event.target as Element | null
+    if (target?.closest('.code-block .copy button')) track('Copied a code snippet')
+  })
 </script>

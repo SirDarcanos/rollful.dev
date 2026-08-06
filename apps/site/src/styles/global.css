@@ -28,26 +28,35 @@
   }
 }
 
-/* Shiki is asked for two themes and no default colour, so it emits both as custom properties
-   on every token and the page picks one here. Without this the code renders unstyled.
-   Backgrounds stay transparent: every code block sits in a container that already has one,
-   and Shiki's own would be a second, slightly different shade inside it. */
-.astro-code,
-.astro-code span {
-  color: var(--shiki-light);
-  background-color: transparent;
+/* Expressive Code draws the frames here as it does in the documentation, and Starlight has
+   it take three greys from the palette rather than from the syntax theme. Starlight's own
+   stylesheet is not on this page, so the same three are declared here — the values in
+   starlight.css, which is what keeps a code block looking the same on both. */
+/* On :root, not on the block: Expressive Code resolves its own variables there, and one of
+   them is a color-mix over this grey. Undefined, the mix is invalid, the border shorthand
+   holding it is dropped, and the frame loses its outline and its background. */
+:root {
+  --sl-color-gray-4: #52525b;
+  --sl-color-gray-5: #323232;
+  --sl-color-gray-6: #282828;
 }
 
-@media (prefers-color-scheme: dark) {
-  .astro-code,
-  .astro-code span {
-    color: var(--shiki-dark);
+@media (prefers-color-scheme: light) {
+  :root {
+    --sl-color-gray-4: #a1a1aa;
+    --sl-color-gray-5: #e4e4e7;
+    --sl-color-gray-6: #f4f4f5;
   }
 }
 
-.astro-code {
+/* Expressive Code sets its own margins for prose. Here the page places the block. */
+.code-block .expressive-code {
   margin: 0;
-  padding: 0;
-  overflow: visible;
-  background-color: transparent;
+}
+
+/* The roller sits among the code blocks and is framed like one, from the variables their
+   frames are drawn from rather than from a copy of the colours. */
+.framed {
+  border: 1px solid color-mix(in srgb, var(--sl-color-gray-5), transparent 25%);
+  background-color: var(--sl-color-gray-6);
 }
